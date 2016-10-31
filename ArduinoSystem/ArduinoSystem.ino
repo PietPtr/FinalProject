@@ -49,7 +49,6 @@ bc_num rsaE = NULL;
 bc_num two = NULL;
 
 
-
 int DIGITS = 0;
 
 void print_bignum(bc_num x) {
@@ -69,7 +68,7 @@ void setup() {
   bc_str2num(&two, "2",DIGITS);
   
   // test multiplication  
-  bc_str2num(&a, "42", DIGITS);
+  bc_str2num(&a, "41", DIGITS);
   bc_str2num(&b, "18254546", DIGITS);
   bc_multiply(a,b,&c,DIGITS);
   
@@ -88,6 +87,37 @@ void beep() {
   tone(3, 540, 80);
 }
 
+void genBigNum (bn_num num, int s){
+  int counter;
+  stringNUmber = "";
+  for(counter = 0; counter < s; counter++){
+    stringNumber += random(10).toString();
+  }
+  bc_str2num(&num, stringNumber, DIGITS);
+}
+
+
+bn_num extendedEuclidean(bn_num a, bn_num b){
+  bn_num olda = a;
+  bn_num oldb = b;
+  bn_num x0 = 1, x1 = 0; y0 = 0; y1 = 1;
+  while (b != 0){
+    
+    q = a / b;
+    b = a % b; //might need mod function
+    a = b;
+   
+    x1 = x0 - q * x1;
+    x0 = x1;
+    y1 = y0 - q * y1;
+    y0 = y1;
+  }
+  x0 = x0 % oldb;
+  y0 = y0 % olda;
+  return a, x0, y0 //yeah get creative bitch, only need x0 probs
+}
+
+
 bool isPrime(bc_num test) {
   
   if ( test == two){
@@ -95,13 +125,23 @@ bool isPrime(bc_num test) {
   }
   bc_num mod = NULL;
   bc_modulo(test, two, &mod, DIGITS);
-  print_bignum(mod);
-}  
-
-void genkey() {
+  if( mod == two){
+    return false;
+  }
   
+  
+  //TODO: add miller rabin test
+    a.powMod(power, mod);
+  //print_bignum(mod);
 }  
 
+void genPrime() {
+   
+}
+
+void genKey(){
+  
+}
 void loop() {
   if (micros() - lastScanTime >= 10000000) {
     for (int i = 0; i < 10; i++) {
