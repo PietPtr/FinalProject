@@ -5,11 +5,23 @@ import json
 ser = serial.Serial('/dev/ttyACM0', 9600)
 http = urllib3.PoolManager()
 
+terminal_type = "Unknown"
+
+response = input("Are you the waiter (1) or the cashier (2)? ")
+if (response == '1'):
+    terminal_type = "waiter"
+elif (response == '2'):
+    terminal_type = "cashier"
+else:
+    print("Invalid answer")
+    exit()
+
+
 def encrypt(text):
     return text
 
 def serialize(data):
-    return json.dumps({'id': data, 'data': ""})
+    return json.dumps({'id': data, 'type': terminal_type})
 
 def sendData(data):
     r = http.request(

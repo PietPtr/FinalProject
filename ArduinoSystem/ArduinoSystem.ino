@@ -9,7 +9,7 @@
  * Released into the public domain.
  *
  * Sample program showing how to read data from a PICC using a MFRC522 reader on the Arduino SPI interface.
- *----------------------------------------------------------------------------- empty_skull 
+ *----------------------------------------------------------------------------- empty_skull
  * Aggiunti pin per arduino Mega
  * add pin configuration for arduino mega
  * http://mac86project.altervista.org/
@@ -24,7 +24,7 @@
  * SPI MISO   12               50                MISO
  * SPI SCK    13               52                SCK1
  *
- * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com. 
+ * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com.
  */
 
 #include <SPI.h>
@@ -56,7 +56,7 @@ void loop() {
       previous_uid[i] = 0;
     }
   }
- 
+
 	// Look for new cards
 	if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
@@ -92,7 +92,7 @@ void loop() {
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
-  
+
   beep();
 
   lastScanTime = micros();
