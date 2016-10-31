@@ -1,11 +1,23 @@
 import serial
 import urllib3
+import json
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 http = urllib3.PoolManager()
 
 def encrypt(text):
     return text
+
+def serialize(data):
+    return json.dumps({'id': data, 'data': ""})
+
+def sendData(data):
+    r = http.request(
+        'POST',
+        '130.89.228.250:8080/Restaurant/PythonReceiver',
+        headers={'Content-Type': 'application/json'},
+        body=serialize(encrypt(data)))
+    r.read()
 
 while True:
     data = str(ser.readline())
@@ -26,7 +38,4 @@ while True:
 
         print(num_id)
 
-        r = http.request(
-            'POST',
-            'http://httpbin.org/post',
-            fields={"id":num_id})
+        sendData(num_id)
