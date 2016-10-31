@@ -1,3 +1,8 @@
+body {
+  font-family: Arial,Helvetica,Helvetica,sans-serif;
+  color: #ffffff;
+}
+
 p {
   font-family: Arial,Helvetica,Helvetica,sans-serif;
 }
@@ -51,7 +56,7 @@ td {
   border-width: 2px;
   color: #ffffff;
   font-family: Arial,Helvetica,Helvetica,sans-serif;
-  font-size: 100%  
+  font-size: 100%
 }
 
 div.container {
@@ -156,4 +161,22 @@ div.price {
   border-radius: 40px;
   position: relative;
   float: left;
+}
+
+div.login {
+  background-color: #0078ff;
+  width: 1280px;
+  height: 500px;
+  margin: 0px 0px 0px 0px;
+  border-radius: 40px;
+  position: relative;
+  margin-top: 200px;
+  margin-bottom: auto;
+}
+div.loginbox {
+  display:inline-block;
+  height: auto;
+  margin: auto;
+  text-align: left;
+  padding-top: 150px;
 }
