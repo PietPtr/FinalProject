@@ -61,6 +61,8 @@ void print_bignum(bc_num x) {
 void setup() {
   Serial.begin(9600);	// Initialize serial communications with the PC
   SPI.begin();			// Init SPI bus
+
+  
   mfrc522.PCD_Init();	// Init MFRC522 card
   bc_init_numbers ();     // Init bigNumber liberary
   
@@ -99,7 +101,11 @@ bool isPrime(bc_num test) {
 }  
 
 void genkey() {
-  
+  int n = random(0, 10000);
+  while (!isPrime(n)) {
+    n++;
+  }
+  return n;
 }  
 
 void loop() {
