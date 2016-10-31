@@ -36,6 +36,8 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
 byte previous_uid[10];
 
+unsigned long lastScanTime = 0;
+
 void setup() {
 	Serial.begin(9600);	// Initialize serial communications with the PC
 	SPI.begin();			// Init SPI bus
@@ -43,10 +45,18 @@ void setup() {
 }
 
 void beep() {
-  tone(3, 540, 50);
+  tone(3, 540, 80);
+  delay(100);
+  tone(3, 540, 80);
 }
 
 void loop() {
+  if (micros() - lastScanTime >= 10000000) {
+    for (int i = 0; i < 10; i++) {
+      previous_uid[i] = 0;
+    }
+  }
+ 
 	// Look for new cards
 	if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
@@ -71,8 +81,6 @@ void loop() {
   }
 
 
-  beep();
-
   Serial.print("ID ");
 
   for (int i = 0; i < mfrc522.uid.size; i++) {
@@ -84,4 +92,8 @@ void loop() {
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
+  
+  beep();
+
+  lastScanTime = micros();
 }
