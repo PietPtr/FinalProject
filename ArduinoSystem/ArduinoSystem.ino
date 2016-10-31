@@ -9,7 +9,7 @@
  * Released into the public domain.
  *
  * Sample program showing how to read data from a PICC using a MFRC522 reader on the Arduino SPI interface.
- *----------------------------------------------------------------------------- empty_skull 
+ *----------------------------------------------------------------------------- empty_skull
  * Aggiunti pin per arduino Mega
  * add pin configuration for arduino mega
  * http://mac86project.altervista.org/
@@ -24,11 +24,14 @@
  * SPI MISO   12               50                MISO
  * SPI SCK    13               52                SCK1
  *
- * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com. 
+ * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com.
  */
 
 #include <SPI.h>
 #include <MFRC522.h>
+#include "BigNumber.h"
+#include "number.h"
+//http://www.gammon.com.au/Arduino/BigNumber.zip
 
 #define SS_PIN 10
 #define RST_PIN 9
@@ -38,10 +41,45 @@ byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
 
+bc_num rsaN = NULL;
+bc_num rsaP = NULL;
+bc_num rsaQ = NULL;
+bc_num rsaD = NULL;
+bc_num rsaE = NULL;
+bc_num two = NULL;
+
+
+
+int DIGITS = 0;
+
+void print_bignum(bc_num x) {
+  char *s=bc_num2str(x);
+  Serial.println (s);
+  free(s); 
+}
+
 void setup() {
-	Serial.begin(9600);	// Initialize serial communications with the PC
-	SPI.begin();			// Init SPI bus
-	mfrc522.PCD_Init();	// Init MFRC522 card
+  Serial.begin(9600);	// Initialize serial communications with the PC
+  SPI.begin();			// Init SPI bus
+  mfrc522.PCD_Init();	// Init MFRC522 card
+  bc_init_numbers ();     // Init bigNumber liberary
+  
+  bc_num a=NULL, b = NULL, c = NULL;
+  bc_str2num(&rsaE, "65537", DIGITS);
+  bc_str2num(&two, "2",DIGITS);
+  
+  // test multiplication  
+  bc_str2num(&a, "42", DIGITS);
+  bc_str2num(&b, "18254546", DIGITS);
+  bc_multiply(a,b,&c,DIGITS);
+  
+  isPrime(a);
+  // get results as string
+  print_bignum (c);
+  
+  bc_free_num (&b);
+  bc_free_num (&c);
+
 }
 
 void beep() {
@@ -50,13 +88,27 @@ void beep() {
   tone(3, 540, 80);
 }
 
+bool isPrime(bc_num test) {
+  
+  if ( test == two){
+    return false;
+  }
+  bc_num mod = NULL;
+  bc_modulo(test, two, &mod, DIGITS);
+  print_bignum(mod);
+}  
+
+void genkey() {
+  
+}  
+
 void loop() {
   if (micros() - lastScanTime >= 10000000) {
     for (int i = 0; i < 10; i++) {
       previous_uid[i] = 0;
     }
   }
- 
+
 	// Look for new cards
 	if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
@@ -92,7 +144,7 @@ void loop() {
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
-  
+
   beep();
 
   lastScanTime = micros();
