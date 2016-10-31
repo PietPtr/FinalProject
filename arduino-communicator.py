@@ -51,3 +51,5 @@ while True:
         print(num_id)
 
         sendData(num_id)
+    elif (data.startwith('KEY')):
+        sendData(data)        

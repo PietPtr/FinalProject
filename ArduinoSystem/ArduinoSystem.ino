@@ -29,6 +29,9 @@
 
 #include <SPI.h>
 #include <MFRC522.h>
+#include "BigNumber.h"
+#include "number.h"
+//http://www.gammon.com.au/Arduino/BigNumber.zip
 
 #define SS_PIN 10
 #define RST_PIN 9
@@ -38,10 +41,45 @@ byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
 
+bc_num rsaN = NULL;
+bc_num rsaP = NULL;
+bc_num rsaQ = NULL;
+bc_num rsaD = NULL;
+bc_num rsaE = NULL;
+bc_num two = NULL;
+
+
+
+int DIGITS = 0;
+
+void print_bignum(bc_num x) {
+  char *s=bc_num2str(x);
+  Serial.println (s);
+  free(s); 
+}
+
 void setup() {
-	Serial.begin(9600);	// Initialize serial communications with the PC
-	SPI.begin();			// Init SPI bus
-	mfrc522.PCD_Init();	// Init MFRC522 card
+  Serial.begin(9600);	// Initialize serial communications with the PC
+  SPI.begin();			// Init SPI bus
+  mfrc522.PCD_Init();	// Init MFRC522 card
+  bc_init_numbers ();     // Init bigNumber liberary
+  
+  bc_num a=NULL, b = NULL, c = NULL;
+  bc_str2num(&rsaE, "65537", DIGITS);
+  bc_str2num(&two, "2",DIGITS);
+  
+  // test multiplication  
+  bc_str2num(&a, "42", DIGITS);
+  bc_str2num(&b, "18254546", DIGITS);
+  bc_multiply(a,b,&c,DIGITS);
+  
+  isPrime(a);
+  // get results as string
+  print_bignum (c);
+  
+  bc_free_num (&b);
+  bc_free_num (&c);
+
 }
 
 void beep() {
@@ -49,6 +87,20 @@ void beep() {
   delay(100);
   tone(3, 540, 80);
 }
+
+bool isPrime(bc_num test) {
+  
+  if ( test == two){
+    return false;
+  }
+  bc_num mod = NULL;
+  bc_modulo(test, two, &mod, DIGITS);
+  print_bignum(mod);
+}  
+
+void genkey() {
+  
+}  
 
 void loop() {
   if (micros() - lastScanTime >= 10000000) {
