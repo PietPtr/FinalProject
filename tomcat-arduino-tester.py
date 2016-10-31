@@ -6,18 +6,20 @@ http = urllib3.PoolManager()
 def encrypt(text):
     return text
 
-def serialize(data):
-    return json.dumps({'id': data, 'data': ""})
+def serialize(data, origin):
+    return json.dumps({'cardId': data, 'cardData': "", 'originName': origin})
 
-def sendData(data):
+def sendData(data, origin):
+    packet=encrypt(serialize(data, origin))
+    print(packet)
     r = http.request(
         'POST',
-        '130.89.228.250:8080/Restaurant/PythonReceiver',
+        'localhost:8080/Restaurant/PythonReceiver',
         headers={'Content-Type': 'application/json'},
-        body=serialize(encrypt(data)))
+        body=packet)
     r.read()
 
-sendData("10485")
-sendData("Hello")
-sendData("13z753")
-sendData("9853634")
+sendData("10485", "Terminal1")
+sendData("576384", "Terminal1")
+sendData("134753", "Terminal2")
+sendData("9853634", "Terminal2")
