@@ -31,6 +31,10 @@ h3 {
   padding-left: 20px;
 }
 
+h4 {
+  margin-top: 16px;
+}
+
 table {
   border-style: hidden;
   border-color: #ffffff;
@@ -110,13 +114,14 @@ div.order {
 
 div.checkout {
   background-color: #0078ff;
-  width: 440px;
-  height: 130px;
+  width: 210px;
+  height: 55px;
   margin: 20px 0px 0px 20px;
-  border-radius: 40px;
+  border-radius: 10px;
   position: relative;
-  float: right;
+  float: left;
 }
+
 .checkout:hover {
   background-color: #184da3;
 }
@@ -173,6 +178,7 @@ div.login {
   margin-top: 200px;
   margin-bottom: auto;
 }
+
 div.loginbox {
   display:inline-block;
   height: auto;
