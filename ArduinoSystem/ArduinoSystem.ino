@@ -22,7 +22,7 @@
  * SPI SS     10               53                SDA
  * SPI MOSI   11               51                MOSI
  * SPI MISO   12               50                MISO
- * SPI SCK    13               52                SCK
+ * SPI SCK    13               52                SCK1
  *
  * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com. 
  */
@@ -34,17 +34,16 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
-byte uid[10];
+byte previous_uid[10];
 
 void setup() {
 	Serial.begin(9600);	// Initialize serial communications with the PC
 	SPI.begin();			// Init SPI bus
 	mfrc522.PCD_Init();	// Init MFRC522 card
-
 }
 
 void beep() {
-  tone(3, /*540*/100, 50);
+  tone(3, 540, 50);
 }
 
 void loop() {
@@ -58,6 +57,20 @@ void loop() {
 		return;
 	}
 
+  // Check if this card has been scanned before
+  // by comparing its ID to previous_uid
+  bool equal = false;
+  for (int i = 0; i < mfrc522.uid.size; i++) {
+    equal = mfrc522.uid.uidByte[i] == previous_uid[i];
+    if (!equal) {
+      break;
+    }
+  }
+  if (equal) {
+    return;
+  }
+
+
   beep();
 
   Serial.print("ID ");
@@ -67,5 +80,8 @@ void loop() {
     Serial.print(" ");
   }
   Serial.print("\n");
-  
+
+  for (int i = 0; i < mfrc522.uid.size; i++) {
+    previous_uid[i] = mfrc522.uid.uidByte[i];
+  }
 }
