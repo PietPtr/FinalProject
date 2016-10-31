@@ -9,7 +9,15 @@ def encrypt(text):
     return text
 
 def serialize(data):
-    return json.dumps("id": data, "data" : "")
+    return json.dumps({'id': data, 'data': ""})
+
+def sendData(data):
+    r = http.request(
+        'POST',
+        '130.89.228.250:8080/Restaurant/PythonReceiver',
+        headers={'Content-Type': 'application/json'},
+        body=serialize(encrypt(data)))
+    r.read()
 
 while True:
     data = str(ser.readline())
@@ -30,9 +38,4 @@ while True:
 
         print(num_id)
 
-        r = http.request(
-            'POST',
-            '130.89.228.250:8080/Restaurant/PythonReceiver',
-            headers={'Content-Type': 'application/json'},
-            body=serialize(encrypt(mun_id)))
-        r.read()
+        sendData(num_id)
