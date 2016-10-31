@@ -2,19 +2,22 @@ from django.db import models
 
 # Create your models here.
 
+class Card (models.Model):
+    identifier = models.IntegerField()
+
 
 class Account (models.Model):
-    pass
+    card = models.ForeignKey(Card)
 
 
-class Card (models.Model):
-    pass
 
 
 class Food (models.Model):
-    pass
+    name = models.CharField(max_length=50)
+    descr = models.CharField(max_length=150)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
 
 
 class Order (models.Models):
-    pass
-
+    account = models.ForeignKey(Account)
+    food = models.ForeignKey(Food)
