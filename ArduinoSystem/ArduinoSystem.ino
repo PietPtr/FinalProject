@@ -9,7 +9,7 @@
  * Released into the public domain.
  *
  * Sample program showing how to read data from a PICC using a MFRC522 reader on the Arduino SPI interface.
- *----------------------------------------------------------------------------- empty_skull 
+ *----------------------------------------------------------------------------- empty_skull
  * Aggiunti pin per arduino Mega
  * add pin configuration for arduino mega
  * http://mac86project.altervista.org/
@@ -24,7 +24,7 @@
  * SPI MISO   12               50                MISO
  * SPI SCK    13               52                SCK1
  *
- * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com. 
+ * The reader can be found on eBay for around 5 dollars. Search for "mf-rc522" on ebay.com.
  */
 
 #include <SPI.h>
@@ -36,6 +36,7 @@
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
+const int PRIME_SIZE = 40;
 
 byte previous_uid[10];
 
@@ -60,6 +61,8 @@ void print_bignum(bc_num x) {
 void setup() {
   Serial.begin(9600);	// Initialize serial communications with the PC
   SPI.begin();			// Init SPI bus
+
+  
   mfrc522.PCD_Init();	// Init MFRC522 card
   bc_init_numbers ();     // Init bigNumber liberary
   
@@ -87,20 +90,28 @@ void beep() {
   tone(3, 540, 80);
 }
 
-void genBigNum (bn_num num, int s){
+void genBigNum (bc_num num){
   int counter;
-  stringNUmber = "";
-  for(counter = 0; counter < s; counter++){
-    stringNumber += random(10).toString();
+  String stringNumber;
+  for(counter = 0; counter < PRIME_SIZE; counter++){
+    stringNumber += String(random(10));
   }
-  bc_str2num(&num, stringNumber, DIGITS);
+  char charnumber[PRIME_SIZE];
+  stringNumber.toCharArray(charnumber, PRIME_SIZE);
+  bc_str2num(&num, charnumber, DIGITS);
 }
 
 
-bn_num extendedEuclidean(bn_num a, bn_num b){
-  bn_num olda = a;
-  bn_num oldb = b;
-  bn_num x0 = 1, x1 = 0; y0 = 0; y1 = 1;
+bc_num extendedEuclidean(bc_num a, bc_num b){
+  bc_num olda = a;
+  bc_num oldb = b;
+  bc_num one;
+  bc_num zero;
+  bc_str2num(&one, "1",DIGITS);
+  bc_str2num(&zero, "0",DIGITS);
+  bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
+  bc_num q;
+  
   while (b != 0){
     
     q = a / b;
@@ -113,8 +124,7 @@ bn_num extendedEuclidean(bn_num a, bn_num b){
     y0 = y1;
   }
   x0 = x0 % oldb;
-  y0 = y0 % olda;
-  return a, x0, y0 //yeah get creative bitch, only need x0 probs
+  return x0;
 }
 
 
@@ -133,7 +143,11 @@ bool isPrime(bc_num test) {
   //TODO: add miller rabin test
     a.powMod(power, mod);
   //print_bignum(mod);
+
+  print_bignum(mod);
 }  
+
+
 
 void genPrime() {
    
@@ -142,13 +156,14 @@ void genPrime() {
 void genKey(){
   
 }
+
 void loop() {
   if (micros() - lastScanTime >= 10000000) {
     for (int i = 0; i < 10; i++) {
       previous_uid[i] = 0;
     }
   }
- 
+
 	// Look for new cards
 	if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
@@ -184,7 +199,7 @@ void loop() {
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
-  
+
   beep();
 
   lastScanTime = micros();
