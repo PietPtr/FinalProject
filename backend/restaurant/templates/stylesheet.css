@@ -197,3 +197,21 @@ div.loginbox {
     text-align: left;
     padding-top: 150px;
 }
+
+div.cooks {
+  background-color: #0078ff;
+  width: 1280px;
+  height: 500px;
+  margin: 20px 0px 20px 0px;
+  border-radius: 40px;
+  position: relative;
+  overflow-y: scroll;
+}
+div.count {
+  background-color: #0078ff;
+  width: 1280px;
+  height: 200px;
+  margin: 20px 0px 0px 0px;
+  border-radius: 40px;
+  position: relative;
+}
