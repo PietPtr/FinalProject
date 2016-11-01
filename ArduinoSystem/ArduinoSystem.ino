@@ -47,35 +47,44 @@ bc_num rsaP = NULL;
 bc_num rsaQ = NULL;
 bc_num rsaD = NULL;
 bc_num rsaE = NULL;
-bc_num two = NULL;
+bc_num zero;
+bc_num one;
+bc_num two;
 
 
 int DIGITS = 0;
 
 void print_bignum(bc_num x) {
   char *s=bc_num2str(x);
-  Serial.println (s);
+  Serial.println(s);
   free(s); 
 }
 
 void setup() {
   Serial.begin(9600);	// Initialize serial communications with the PC
-  SPI.begin();			// Init SPI bus
+  SPI.begin();		// Init SPI bus
 
-  
   mfrc522.PCD_Init();	// Init MFRC522 card
   bc_init_numbers ();     // Init bigNumber liberary
   
   bc_num a=NULL, b = NULL, c = NULL;
   bc_str2num(&rsaE, "65537", DIGITS);
+  bc_str2num(&zero, "0",DIGITS);
+  bc_str2num(&one, "1",DIGITS);
   bc_str2num(&two, "2",DIGITS);
+  
   
   // test multiplication  
   bc_str2num(&a, "41", DIGITS);
   bc_str2num(&b, "18254546", DIGITS);
   bc_multiply(a,b,&c,DIGITS);
   
-  isPrime(a);
+  if(isPrime(a)){
+    Serial.print("prime\n");
+  }else{
+    Serial.print("not prime\n");
+  }  
+
   // get results as string
   print_bignum (c);
   
@@ -106,8 +115,6 @@ void genBigNum (bc_num num){
 bc_num extendedEuclidean(bc_num a, bc_num b){
   bc_num olda = a;
   bc_num oldb = b;
-  bc_num one;
-  bc_num zero;
   bc_str2num(&one, "1",DIGITS);
   bc_str2num(&zero, "0",DIGITS);
   bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
@@ -134,6 +141,34 @@ bc_num extendedEuclidean(bc_num a, bc_num b){
   return x0;
 }
 
+bool tryMillerRabin(bc_num a, bc_num d, bc_num s, bc_num n){
+  Serial.print("test\n");
+  bc_num temp;
+  bc_raisemod(a, d, n, &temp, DIGITS);
+  print_bignum(a);
+  print_bignum(d);
+  print_bignum(n);
+  if (bc_compare(temp, one) == 0){
+    return false;
+  }
+  bc_num i;
+  bc_str2num(&i, "0",DIGITS);
+  print_bignum(n);
+  Serial.print("test3\n");
+  for(; i < s; bc_add(i, one, &i, DIGITS)){
+    Serial.print("test2\n");
+    bc_num temp2;
+    bc_raise(two, i, &temp, DIGITS);
+    bc_multiply(temp, d, &temp, DIGITS);
+    bc_sub(n, one, &temp2, DIGITS);
+    bc_raisemod(a, temp, n, &temp, DIGITS);
+    if(bc_compare(temp, temp2) == 0){
+      return false;
+    }  
+  }
+  return true;  
+}
+
 
 bool isPrime(bc_num n) {
   
@@ -145,6 +180,7 @@ bool isPrime(bc_num n) {
   if( mod == two){
     return false;
   }
+  
   bc_num s;
   bc_num one;
   bc_num two;
@@ -154,39 +190,22 @@ bool isPrime(bc_num n) {
   bc_str2num(&one, "1",DIGITS);
   bc_str2num(&two, "2",DIGITS);
   bc_sub(n, one, &d, DIGITS);
-  
   while (true){
     bc_num quot;
     bc_num remainder;
     bc_divmod(d, two, &quot, &remainder, DIGITS);
-    if(remainder == one){
+    if(bc_compare(remainder, one) == 0){
       break;
     }
-  } 
-  bool tryMillerRabin(bc_num a){
-    bc_raisemode(a,d, n, &temp, DIGITS);
-    if (temp == one){
-      return false;
-    }
-    bc_num i;
-    bc_str2num(&i, "0",DIGITS);
-    for(; i < s; bc_add(i, one, DIGITS)){
-      bc_temp2;
-      bc_raise(two, i, &temp, DIGITS);
-      bc_multiply(temp, d, &temp);
-      bc_sub(n, one, temp2);
-      bc_raisemode(a, temp, n, &temp, DIGITS);
-      if(temp == temp2){
-        return false;
-      }  
-    }
-    return true;  
+    s += 1;
+    d = quot;
   }
+
 
   for(int i = 0; i < MILLER_RABIN_ROUNDS; i++) {
     bc_num a;
     bc_int2num(&a, random(10000));
-    if (tryMillerRabin(a)){
+    if (tryMillerRabin(a, d, s, n)){
       return false;
     }  
   }    
@@ -204,6 +223,7 @@ void genKey(){
 }
 
 void loop() {
+
   if (micros() - lastScanTime >= 10000000) {
     for (int i = 0; i < 10; i++) {
       previous_uid[i] = 0;
