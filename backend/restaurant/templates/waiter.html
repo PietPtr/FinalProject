@@ -2,6 +2,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="stylesheet.css">
+<script type="text/javascript" src="javascript.js"></script>
 </header>
 <title>Waiter</title>
 </head>
@@ -15,34 +16,50 @@
   </div>
   <div class="order">
     <h2>Ordered</h2>
+    <table id="ordertable">
+      <tr>
+        <th style="width: 300px">product</th>
+        <th>remove</th>
+      </tr>
+    </table>
   </div>
   <div class="product">
-    <div class="item">
+    <div class="item" onclick="moveItem('Apple pie');" style="cursor: pointer;">
+      <p id="Applepie"></p>
+      <b>&#x20AC;</b><b id="ApplepiePrice"></b>
     </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
-    </div>
-    <div class="item">
+    <div class="item" onclick="moveItem('Strawberry')" style="cursor: pointer;">
+      <p id="Strawberry"></p>
+      <b>&#x20AC;</b><b id="StrawberryPrice"></b>
     </div>
   </div>
 </div>
+
+
+<script> //all elements that need to be added to Menu
+document.getElementById("Applepie").innerHTML = "Apple pie";
+document.getElementById("ApplepiePrice").innerHTML = 5.00.toFixed(2);
+document.getElementById("Strawberry").innerHTML = "Strawberry";
+document.getElementById("StrawberryPrice").innerHTML = 0.50.toFixed(2);
+</script>
+
+<script>//by clicking, move menu item to order list
+function moveItem(productname) {
+  var table = document.getElementById("ordertable");
+  var row = table.insertRow(-1);
+  var cell1 = row.insertCell(0);
+  var cell3 = row.insertCell(1);
+  cell1.innerHTML = productname; //item name
+  cell3.innerHTML = '<button onclick="removeItem(this)">remove</button>'
+}
+
+function removeItem(r) {
+  var i = r.parentNode.parentNode.rowIndex;
+  document.getElementById("ordertable").deleteRow(i);
+}
+</script>
+
+
 </body>
 
 </html>
