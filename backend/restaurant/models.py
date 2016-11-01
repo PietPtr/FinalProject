@@ -8,6 +8,7 @@ class Card (models.Model):
 class Account (models.Model):
     card = models.ForeignKey(Card)
     active = models.SmallIntegerField(default=0)
+    payed = models.SmallIntegerField(default=0)
 
 
 class Food (models.Model):
@@ -19,6 +20,7 @@ class Food (models.Model):
 class Order (models.Model):
     account = models.ForeignKey(Account)
     food = models.ForeignKey(Food)
+    done = models.SmallIntegerField(default=0)
 
 
 class CardSwipe (models.Model):
