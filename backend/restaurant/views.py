@@ -9,7 +9,7 @@ from restaurant.models import Order, CardSwipe, Account, Food, Card
 
 
 def index(request):
-    return HttpResponse("Index")
+    return HttpResponse("Correct IP")
 
 
 def stylesheet(request):
@@ -18,10 +18,16 @@ def stylesheet(request):
 
 
 def waiter(request):
-    return HttpResponse("waiter")
+    foods = Food.objects.all()
+    context = {'foods': foods}
+    return render(request, "waiter.html", context)
 
 
-def order(request):
+def addorder(request):
+    pass
+
+
+def rmorder(request):
     pass
 
 
@@ -40,16 +46,22 @@ def cashier(request):
     return render(request, 'cashier.html', context)
 
 
-def checkout(request, swipeid):
-    print(swipeid)
+def checkout(request):
+    request.GET["swipeid"]
     return HttpResponse("checkout done!")
 
 
 @csrf_exempt
 def cardswiped(request):
+    addmode = True
     obj = json.loads(request.body.decode('utf-8'))
     if obj:
-        print(obj["id"])
-        swipe = CardSwipe(card=Card.objects.filter(identifier=obj["id"])[0], device=obj["type"])
-        swipe.save()
+        if addmode:
+            oldcard = Card.objects.filter(identifier=obj["id"])
+            if not oldcard:
+                card = Card(identifier=obj["id"])
+                card.save()
+        else:
+            swipe = CardSwipe(card=Card.objects.filter(identifier=obj["id"])[0], device=obj["type"])
+            swipe.save()
     return HttpResponse("OK")
