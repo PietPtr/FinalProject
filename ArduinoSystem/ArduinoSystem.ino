@@ -36,6 +36,7 @@
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
+const int PRIME_SIZE = 40;
 
 byte previous_uid[10];
 
@@ -47,7 +48,6 @@ bc_num rsaQ = NULL;
 bc_num rsaD = NULL;
 bc_num rsaE = NULL;
 bc_num two = NULL;
-
 
 
 int DIGITS = 0;
@@ -71,7 +71,7 @@ void setup() {
   bc_str2num(&two, "2",DIGITS);
   
   // test multiplication  
-  bc_str2num(&a, "42", DIGITS);
+  bc_str2num(&a, "41", DIGITS);
   bc_str2num(&b, "18254546", DIGITS);
   bc_multiply(a,b,&c,DIGITS);
   
@@ -90,6 +90,44 @@ void beep() {
   tone(3, 540, 80);
 }
 
+void genBigNum (bc_num num){
+  int counter;
+  String stringNumber;
+  for(counter = 0; counter < PRIME_SIZE; counter++){
+    stringNumber += String(random(10));
+  }
+  char charnumber[PRIME_SIZE];
+  stringNumber.toCharArray(charnumber, PRIME_SIZE);
+  bc_str2num(&num, charnumber, DIGITS);
+}
+
+
+bc_num extendedEuclidean(bc_num a, bc_num b){
+  bc_num olda = a;
+  bc_num oldb = b;
+  bc_num one;
+  bc_num zero;
+  bc_str2num(&one, "1",DIGITS);
+  bc_str2num(&zero, "0",DIGITS);
+  bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
+  bc_num q;
+  
+  while (b != 0){
+    
+    q = a / b;
+    b = a % b; //might need mod function
+    a = b;
+   
+    x1 = x0 - q * x1;
+    x0 = x1;
+    y1 = y0 - q * y1;
+    y0 = y1;
+  }
+  x0 = x0 % oldb;
+  return x0;
+}
+
+
 bool isPrime(bc_num test) {
   
   if ( test == two){
@@ -97,16 +135,27 @@ bool isPrime(bc_num test) {
   }
   bc_num mod = NULL;
   bc_modulo(test, two, &mod, DIGITS);
+  if( mod == two){
+    return false;
+  }
+  
+  
+  //TODO: add miller rabin test
+    a.powMod(power, mod);
+  //print_bignum(mod);
+
   print_bignum(mod);
 }  
 
-void genkey() {
-  int n = random(0, 10000);
-  while (!isPrime(n)) {
-    n++;
-  }
-  return n;
-}  
+
+
+void genPrime() {
+   
+}
+
+void genKey(){
+  
+}
 
 void loop() {
   if (micros() - lastScanTime >= 10000000) {
