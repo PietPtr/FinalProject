@@ -1,6 +1,6 @@
 # Final Project
 
-## Running the system
+## Requirements
 
 Hardware requirements:
 - Server
@@ -23,7 +23,19 @@ Software requirements:
   - Firefox
 - Database:
   [- TODO]
-- Arduino:
+- Arduino (building):
   - MFRC522
   - SPI
   - BigNumber http://www.gammon.com.au/Arduino/BigNumber.zip
+
+## Running
+
+### Client computers
+
+1) Install the requirements for the python client and web interface.
+
+2) Plug in the Arduino with RFID reader connected.
+
+3) Run "arduino-communicator.py" with Python 3.5.2
+
+4) Navigate to the web address of the backend server in Firefox
