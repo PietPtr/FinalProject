@@ -37,7 +37,7 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 const int PRIME_SIZE = 40;
-
+const int MILLER _RABIN_ROUNDS = 10;
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
@@ -93,9 +93,10 @@ void beep() {
 void genBigNum (bc_num num){
   int counter;
   String stringNumber;
-  for(counter = 0; counter < PRIME_SIZE; counter++){
+  for(counter = 0; counter < PRIME_SIZE-1; counter++){
     stringNumber += String(random(10));
   }
+  stringNumber += String(random(5)*2+1);  //last digit odd
   char charnumber[PRIME_SIZE];
   stringNumber.toCharArray(charnumber, PRIME_SIZE);
   bc_str2num(&num, charnumber, DIGITS);
@@ -111,19 +112,25 @@ bc_num extendedEuclidean(bc_num a, bc_num b){
   bc_str2num(&zero, "0",DIGITS);
   bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
   bc_num q;
+  bc_num temp;
   
   while (b != 0){
     
-    q = a / b;
-    b = a % b; //might need mod function
+    bc_divide(a, b, &q, DIGITS);
+    bc_modulo(a, b, &b, DIGITS); //might need mod function
     a = b;
    
-    x1 = x0 - q * x1;
+    bc_multiply(q, x1, &temp, DIGITS); 
+    bc_sub(x0, temp, &x1, DIGITS);
+    //x1 = x0 - temp;
     x0 = x1;
-    y1 = y0 - q * y1;
+    bc_multiply(q, y1, &temp, DIGITS);
+    bc_sub(y0, temp, &y1, DIGITS);
+    //y1 = y0 - temp;
     y0 = y1;
   }
-  x0 = x0 % oldb;
+  bc_modulo(x0, oldb, &x0, DIGITS);
+  //x0 = x0 % oldb;
   return x0;
 }
 
@@ -141,7 +148,7 @@ bool isPrime(bc_num test) {
   
   
   //TODO: add miller rabin test
-    a.powMod(power, mod);
+  //a.powMod(power, mod);
   //print_bignum(mod);
 
   print_bignum(mod);
@@ -164,15 +171,15 @@ void loop() {
     }
   }
 
-	// Look for new cards
-	if ( ! mfrc522.PICC_IsNewCardPresent()) {
-		return;
-	}
+  // Look for new cards
+     if ( ! mfrc522.PICC_IsNewCardPresent()) {
+      return;
+  }
 
-	// Select one of the cards
-	if ( ! mfrc522.PICC_ReadCardSerial()) {
-		return;
-	}
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
 
   // Check if this card has been scanned before
   // by comparing its ID to previous_uid
