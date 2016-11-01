@@ -25,14 +25,14 @@ def order(request):
 
 
 def cashier(request):
-    swiped = CardSwipe.objects.filter(device="cashier")[:1]
+    swiped = (CardSwipe.objects.filter(device="cashier")[:1])[0]
     if swiped:
-        account = Account.objects.get(card=swiped.card, active=1)
-        items = Order.objects.get(account=account)
+        account = Account.objects.filter(card=swiped.card, active=1)
+        items = Order.objects.filter(account=account)
         price = 0
         for item in items:
             price += item.food.price
-        context = {'items': items, 'price': str(price) + "€"}
+        context = {'items': items, 'price': price}
     else:
         context = {'price': "0,00€"}
     return render(request, 'cashier.html', context)
