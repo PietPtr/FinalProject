@@ -37,7 +37,7 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 const int PRIME_SIZE = 40;
-const int MILLER_RABIN_ROUNDS = 10;
+const int MILLER_RABIN_ROUNDS = 40;
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
@@ -75,19 +75,18 @@ void setup() {
   
   
   // test multiplication  
-  bc_str2num(&a, "41", DIGITS);
-  bc_str2num(&b, "18254546", DIGITS);
-  bc_multiply(a,b,&c,DIGITS);
+  //bc_str2num(&a, "41", DIGITS);
+  //bc_str2num(&b, "18254546", DIGITS);
+  
+  a = genPrime();
+  print_bignum(a);
   
   if(isPrime(a)){
     Serial.print("prime\n");
   }else{
     Serial.print("not prime\n");
   }  
-
-  // get results as string
-  print_bignum (c);
-  
+  print_bignum (a);
   bc_free_num (&b);
   bc_free_num (&c);
 
@@ -99,16 +98,18 @@ void beep() {
   tone(3, 540, 80);
 }
 
-void genBigNum (bc_num num){
+bc_num genBigNum (bc_num num){
   int counter;
-  String stringNumber;
+  char stringNumber[PRIME_SIZE+1];
   for(counter = 0; counter < PRIME_SIZE-1; counter++){
-    stringNumber += String(random(10));
+    stringNumber[counter]= random(10)+'0';
   }
-  stringNumber += String(random(5)*2+1);  //last digit odd
-  char charnumber[PRIME_SIZE];
-  stringNumber.toCharArray(charnumber, PRIME_SIZE);
-  bc_str2num(&num, charnumber, DIGITS);
+  stringNumber[PRIME_SIZE-1] = random(4)*2+'1';  //last digit odd
+  stringNumber[PRIME_SIZE]= '\0';
+  
+  bc_str2num(&num, stringNumber, DIGITS);
+  print_bignum(num);
+  return num;
 }
 
 
@@ -156,7 +157,6 @@ bool tryMillerRabin(bc_num a, bc_num d, bc_num s, bc_num n){
   print_bignum(n);
   Serial.print("test3\n");
   for(; i < s; bc_add(i, one, &i, DIGITS)){
-    Serial.print("test2\n");
     bc_num temp2;
     bc_raise(two, i, &temp, DIGITS);
     bc_multiply(temp, d, &temp, DIGITS);
@@ -214,8 +214,17 @@ bool isPrime(bc_num n) {
 
 
 
-void genPrime() {
-   
+bc_num genPrime() {
+   bc_num test;
+   Serial.print("test next number\n");
+   genBigNum(test);
+   Serial.print("generated it\n");
+   while(!isPrime(test)){
+     Serial.print("test next prime\n");
+     genBigNum(test);
+   }
+   Serial.print("PRIME!!!\n");
+   return test;
 }
 
 void genKey(){
