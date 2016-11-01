@@ -62,7 +62,7 @@ def sendData(data):
         '130.89.231.249:8000/restaurant/cardswiped',
         headers={'Content-Type': 'application/json'},
         body=serialize(encrypt(data)))
-    r.read()
+    print(r.read())
 
 while True:
     data = str(ser.readline())
@@ -81,8 +81,8 @@ while True:
         # convert the hex ID to a number
         num_id = int(id, 16)
 
-        print(num_id)
+        print("Scanned card   [DEBUG] ", num_id)
 
         sendData(num_id)
-    elif (data.startwith('KEY')):
+    elif (data.startswith('KEY')):
         sendData(data)
