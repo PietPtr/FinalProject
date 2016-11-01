@@ -22,4 +22,4 @@ class Order (models.Model):
 
 class CardSwipe (models.Model):
     card = models.ForeignKey(Card)
-    device = models.IntegerField(max_length=1000)
+    device = models.IntegerField()
