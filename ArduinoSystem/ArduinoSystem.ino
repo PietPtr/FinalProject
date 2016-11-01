@@ -37,7 +37,7 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 const int PRIME_SIZE = 40;
-const int MILLER _RABIN_ROUNDS = 10;
+const int MILLER_RABIN_ROUNDS = 10;
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
@@ -135,23 +135,62 @@ bc_num extendedEuclidean(bc_num a, bc_num b){
 }
 
 
-bool isPrime(bc_num test) {
+bool isPrime(bc_num n) {
   
-  if ( test == two){
+  if ( n == two){
     return false;
   }
   bc_num mod = NULL;
-  bc_modulo(test, two, &mod, DIGITS);
+  bc_modulo(n, two, &mod, DIGITS);
   if( mod == two){
     return false;
   }
+  bc_num s;
+  bc_num one;
+  bc_num two;
+  bc_num d;
+  bc_num temp;
+  bc_str2num(&s, "0",DIGITS);
+  bc_str2num(&one, "1",DIGITS);
+  bc_str2num(&two, "2",DIGITS);
+  bc_sub(n, one, &d, DIGITS);
   
-  
-  //TODO: add miller rabin test
-  //a.powMod(power, mod);
-  //print_bignum(mod);
+  while (true){
+    bc_num quot;
+    bc_num remainder;
+    bc_divmod(d, two, &quot, &remainder, DIGITS);
+    if(remainder == one){
+      break;
+    }
+  } 
+  bool tryMillerRabin(bc_num a){
+    bc_raisemode(a,d, n, &temp, DIGITS);
+    if (temp == one){
+      return false;
+    }
+    bc_num i;
+    bc_str2num(&i, "0",DIGITS);
+    for(; i < s; bc_add(i, one, DIGITS)){
+      bc_temp2;
+      bc_raise(two, i, &temp, DIGITS);
+      bc_multiply(temp, d, &temp);
+      bc_sub(n, one, temp2);
+      bc_raisemode(a, temp, n, &temp, DIGITS);
+      if(temp == temp2){
+        return false;
+      }  
+    }
+    return true;  
+  }
 
-  print_bignum(mod);
+  for(int i = 0; i < MILLER_RABIN_ROUNDS; i++) {
+    bc_num a;
+    bc_int2num(&a, random(10000));
+    if (tryMillerRabin(a)){
+      return false;
+    }  
+  }    
+  return true;
 }  
 
 
