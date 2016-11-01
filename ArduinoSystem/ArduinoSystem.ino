@@ -37,7 +37,7 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 const int PRIME_SIZE = 40;
-
+const int MILLER_RABIN_ROUNDS = 10;
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
@@ -93,9 +93,10 @@ void beep() {
 void genBigNum (bc_num num){
   int counter;
   String stringNumber;
-  for(counter = 0; counter < PRIME_SIZE; counter++){
+  for(counter = 0; counter < PRIME_SIZE-1; counter++){
     stringNumber += String(random(10));
   }
+  stringNumber += String(random(5)*2+1);  //last digit odd
   char charnumber[PRIME_SIZE];
   stringNumber.toCharArray(charnumber, PRIME_SIZE);
   bc_str2num(&num, charnumber, DIGITS);
@@ -111,40 +112,85 @@ bc_num extendedEuclidean(bc_num a, bc_num b){
   bc_str2num(&zero, "0",DIGITS);
   bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
   bc_num q;
+  bc_num temp;
   
   while (b != 0){
     
-    q = a / b;
-    b = a % b; //might need mod function
+    bc_divide(a, b, &q, DIGITS);
+    bc_modulo(a, b, &b, DIGITS); //might need mod function
     a = b;
    
-    x1 = x0 - q * x1;
+    bc_multiply(q, x1, &temp, DIGITS); 
+    bc_sub(x0, temp, &x1, DIGITS);
+    //x1 = x0 - temp;
     x0 = x1;
-    y1 = y0 - q * y1;
+    bc_multiply(q, y1, &temp, DIGITS);
+    bc_sub(y0, temp, &y1, DIGITS);
+    //y1 = y0 - temp;
     y0 = y1;
   }
-  x0 = x0 % oldb;
+  bc_modulo(x0, oldb, &x0, DIGITS);
+  //x0 = x0 % oldb;
   return x0;
 }
 
 
-bool isPrime(bc_num test) {
+bool isPrime(bc_num n) {
   
-  if ( test == two){
+  if ( n == two){
     return false;
   }
   bc_num mod = NULL;
-  bc_modulo(test, two, &mod, DIGITS);
+  bc_modulo(n, two, &mod, DIGITS);
   if( mod == two){
     return false;
   }
+  bc_num s;
+  bc_num one;
+  bc_num two;
+  bc_num d;
+  bc_num temp;
+  bc_str2num(&s, "0",DIGITS);
+  bc_str2num(&one, "1",DIGITS);
+  bc_str2num(&two, "2",DIGITS);
+  bc_sub(n, one, &d, DIGITS);
   
-  
-  //TODO: add miller rabin test
-    a.powMod(power, mod);
-  //print_bignum(mod);
+  while (true){
+    bc_num quot;
+    bc_num remainder;
+    bc_divmod(d, two, &quot, &remainder, DIGITS);
+    if(remainder == one){
+      break;
+    }
+  } 
+  bool tryMillerRabin(bc_num a){
+    bc_raisemode(a,d, n, &temp, DIGITS);
+    if (temp == one){
+      return false;
+    }
+    bc_num i;
+    bc_str2num(&i, "0",DIGITS);
+    for(; i < s; bc_add(i, one, DIGITS)){
+      bc_temp2;
+      bc_raise(two, i, &temp, DIGITS);
+      bc_multiply(temp, d, &temp);
+      bc_sub(n, one, temp2);
+      bc_raisemode(a, temp, n, &temp, DIGITS);
+      if(temp == temp2){
+        return false;
+      }  
+    }
+    return true;  
+  }
 
-  print_bignum(mod);
+  for(int i = 0; i < MILLER_RABIN_ROUNDS; i++) {
+    bc_num a;
+    bc_int2num(&a, random(10000));
+    if (tryMillerRabin(a)){
+      return false;
+    }  
+  }    
+  return true;
 }  
 
 
@@ -164,15 +210,15 @@ void loop() {
     }
   }
 
-	// Look for new cards
-	if ( ! mfrc522.PICC_IsNewCardPresent()) {
-		return;
-	}
+  // Look for new cards
+     if ( ! mfrc522.PICC_IsNewCardPresent()) {
+      return;
+  }
 
-	// Select one of the cards
-	if ( ! mfrc522.PICC_ReadCardSerial()) {
-		return;
-	}
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
 
   // Check if this card has been scanned before
   // by comparing its ID to previous_uid
