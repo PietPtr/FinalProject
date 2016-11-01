@@ -118,6 +118,7 @@ div.order {
     border-radius: 40px;
     position: relative;
     float: right;
+    overflow-y: scroll;
 }
 
 div.checkout {

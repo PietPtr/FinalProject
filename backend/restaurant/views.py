@@ -18,7 +18,7 @@ def stylesheet(request):
 
 
 def waiter(request):
-    foods = Food.objects.all()
+    foods = Food.objects.all().order_by('name')
     context = {'foods': foods}
     return render(request, "waiter.html", context)
 
