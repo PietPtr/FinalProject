@@ -1,10 +1,8 @@
-from PIL import Image
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponse
 import json
 import random
 
-from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
 from restaurant.models import Order, CardSwipe, Account, Food, Card, Variables
@@ -18,15 +16,16 @@ def setup(request):
     init()
     print(getvalue("n"))
     return HttpResponse(getvalue("n"))
-    # return HttpResponse("1526389563258964715965236589652856325698")
 
 
 def reset(request):
-    if getvalue("reset") == "0":
-        a, b = random._urandom(5), random._urandom(5)
-        setvalue("reset", a+b)
-        return HttpResponse(getvalue("reset"))
-    if request.GET["answer"] == getvalue("reset"):
+    variable = getvalue("reset")
+    userinput = request.GET.get("reset", "0")
+    if not variable or userinput != variable:
+        a, b = random.randint(1, 15), random.randint(1, 15)
+        setvalue("reset", a + b)
+        return HttpResponse(str(a) + " : " + str(b))
+    else:
         for account in Account.objects.all():
             account.delete()
         for cardswipe in CardSwipe.objects.all():
@@ -36,8 +35,6 @@ def reset(request):
         for order in Order.objects.all():
             order.delete()
         return HttpResponse("Deleted!")
-    else:
-        return HttpResponse("Wrong!")
 
 
 def waiter(request):
@@ -48,19 +45,19 @@ def waiter(request):
 
 def addorder(request):
     food = Food.objects.filter(name=request.GET["food"])[:1][0]
-    print("Adding: " + request.GET["food"])
+    print("Adding: " + request.GET.get("food"))
     order = Order(food=food)
     order.save()
-    print("Added: " + request.GET["food"])
+    print("Added: " + request.GET.get("food"))
     return HttpResponse("Done!")
 
 
 def rmorder(request):
-    print("Removing: " + request.GET["food"])
-    food = Food.objects.filter(name=request.GET["food"])[:1][0]
+    print("Removing: " + request.GET.get("food"))
+    food = Food.objects.filter(name=request.GET.get("food"))[:1][0]
     order = Order.objects.filter(food=food)[:1][0]
     order.delete()
-    print("Removed: " + request.GET["food"])
+    print("Removed: " + request.GET.get("food"))
     return HttpResponse("Done!")
 
 
@@ -80,7 +77,7 @@ def cashier(request):
 
 
 def checkout(request):
-    swipe = CardSwipe.objects.filter(card=request.GET["swipeid"])[:1][0]
+    swipe = CardSwipe.objects.filter(card=request.GET.get("swipeid"))[:1][0]
     account = Account.objects.filter(card=swipe.card, active=1)
     orders = Order.objects.filter(account=account, done=0)
     account.paid = 1
@@ -133,7 +130,11 @@ def cardswiped(request):
 
 
 def getvalue(key):
-    return Variables.objects.filter(key=key)[:1][0].value
+    variable = Variables.objects.filter(key=key)
+    if variable:
+        return variable[0].value
+    else:
+        return ""
 
 
 def setvalue(key, value):
