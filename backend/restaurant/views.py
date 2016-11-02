@@ -7,7 +7,7 @@ import random
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
-from restaurant.models import Order, CardSwipe, Account, Food, Card
+from restaurant.models import Order, CardSwipe, Account, Food, Card, Variables
 
 
 def index(request):
@@ -15,8 +15,8 @@ def index(request):
 
 
 def setup(request):
-    #init()
-    #return HttpResponse(str(n))
+    # init()
+    # return HttpResponse(str(n))
     return HttpResponse("1526389563258964715965236589652856325698")
 
 
@@ -101,17 +101,36 @@ def cardswiped(request):
                 for order in orders:
                     order.account = account
                     order.save()
+                print("CardSwipe for Order!")
             elif obj["type"] == "cashier":
                 account = Account.objects.filter(card=Card.objects.filter(identifier=obj["id"])[0], active=1)
                 if not account:
                     newaccount = Account(card=Card.objects.filter(identifier=obj["id"])[0], active=1)
                     newaccount.save()
+                    print("CardSwipe for new Account!")
                 else:
                     swipe = CardSwipe(card=Card.objects.filter(identifier=obj["id"])[0], device=obj["type"])
                     swipe.save()
+                    print("CardSwipe for Payment!")
             else:
                 print("Error 01")
     return HttpResponse("OK")
+
+
+def getvalue(key):
+    return Variables.objects.filter(key=key)[:1][0]
+
+
+def setvalue(key, value):
+    variable = Variables.objects.filter(key=key)[:1][0]
+    variable.value = value
+    variable.save()
+    return None
+
+
+def createvariable(key, value):
+    Variables(key=key, value=value).save()
+    return None
 
 
 primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107,
@@ -122,8 +141,6 @@ EXPONENT = 17
 SIZE_N = 128
 MILLER_RABIN_ROUNDS = 40
 
-primeP = 0
-primeQ = 0
 n = 0
 phi = 0
 d = 0
@@ -166,6 +183,7 @@ def millerrabinfase2(number, rounds):
         if trymillerrabin(a):
             return False
     return True
+
 
 def isprime(number, rounds):
     """ First executes trial division based on lookup-table of primes, then performs miller rabin rounds"""
@@ -236,7 +254,6 @@ def modexp(a, b, n):
 
 
 def init():
-    global primeP
     primeP = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)
     global primeQ
     primeQ = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)

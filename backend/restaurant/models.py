@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.html import format_html
 
 
 class Card(models.Model):
@@ -31,3 +30,8 @@ class Order(models.Model):
 class CardSwipe(models.Model):
     card = models.ForeignKey(Card)
     device = models.CharField(max_length=50)
+
+
+class Variables(models.Model):
+    key = models.CharField(max_length=1024)
+    value = models.CharField(max_length=1024)
