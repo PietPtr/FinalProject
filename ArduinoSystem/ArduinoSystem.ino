@@ -72,13 +72,15 @@ void setup() {
   
   char number[PRIME_SIZE];
   number[0] = '\0';
-  Serial.println("KEY?");
+  
   while(number[0] == '\0'){
-     Serial.readString().toCharArray(number, PRIME_SIZE);
+    Serial.println("KEY?");
+    Serial.readString().toCharArray(number, PRIME_SIZE);
+    delay(100);  
   }
+  
   Serial.print("KEY! ");
   bc_str2num(&rsaN, number, DIGITS);
-  print_bignum(rsaN);
 }
 
 void beep() {
@@ -106,8 +108,8 @@ void encrypt(unsigned long al, unsigned long bl, unsigned long cl, unsigned long
   
   bc_num n;
   
-  int pre = random(256);
-  int post = random(256);
+  unsigned int pre = -random(256);
+  unsigned int post = -random(256);
   
   bc_int2num(&prepadding, pre);
   bc_int2num(&postpadding, post);
@@ -142,10 +144,10 @@ void encrypt(unsigned long al, unsigned long bl, unsigned long cl, unsigned long
   
   bc_add(temp1, n, &prepadding, DIGITS);
   
-  
   bc_add(postpadding, prepadding, &n, DIGITS);
   
   bc_raisemod(rsaE, n, rsaN, &temp1, DIGITS);
+  
   
   Serial.print("ENC ");
   print_bignum(temp1);
@@ -193,10 +195,8 @@ void loop() {
   if (equal) {
     return;
   }
-  Serial.println("ID 00 00 00 00");
   beep();
   encrypt(mfrc522.uid.uidByte[0], mfrc522.uid.uidByte[1], mfrc522.uid.uidByte[2], mfrc522.uid.uidByte[3]);
-  Serial.println("ID2 00 00 00 00");
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
