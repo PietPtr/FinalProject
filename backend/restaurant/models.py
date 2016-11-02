@@ -10,6 +10,9 @@ class Account(models.Model):
     active = models.SmallIntegerField(default=0)
     paid = models.SmallIntegerField(default=0)
 
+    def __str__(self):
+        return str(self.id) + " : " + str(self.active) + " : " + str(self.paid)
+
 
 class Food(models.Model):
     name = models.CharField(max_length=50)
