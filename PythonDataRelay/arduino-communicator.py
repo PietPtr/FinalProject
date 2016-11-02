@@ -53,17 +53,16 @@ except FileNotFoundError:
             terminal_type = input("Is this the computer for the "
                                   "waiter (1) or the cashier (2)? ")
 
+    if (terminal_type == "1"):
+        terminal_type = "waiter"
+    elif (terminal_type == "2"):
+        terminal_type = "cashier"
 
     # Write data to config file
     file.write("server_address=" + str(server_address))
     file.write("\nterminal_type=" + str(terminal_type))
 
-if (terminal_type == "1"):
-    terminal_type = "waiter"
-    print("You are a waiter")
-elif (terminal_type == "2"):
-    terminal_type = "cashier"
-    print("You are a cashier")
+print("You are a", terminal_type)
 
 port = input("What port are you on? If you don't know, just press enter and "
              "I'll look for one.")
