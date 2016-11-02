@@ -8,5 +8,6 @@ admin.site.register(models.Order)
 admin.site.register(models.Account)
 admin.site.register(models.CardSwipe)
 
+
 class FoodAdmin(admin.ModelAdmin):
     list_display = (name)

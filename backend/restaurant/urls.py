@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^cashier$', views.cashier, name='cashier'),
     url(r'^checkout$', views.checkout, name='checkout'),
     url(r'^cardswiped$', views.cardswiped, name='cardswiped'),
+    url(r'^reset$', views.reset, name='reset'),
 
 ]
