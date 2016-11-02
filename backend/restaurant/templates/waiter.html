@@ -58,6 +58,22 @@ function removeItem(r) {
     request.send();
     document.getElementById("ordertable").deleteRow(i);
 }
+
+function checkRefresh() {
+    var request = new XMLHttpRequest();
+    request.open("GET","cleanitems");
+    request.contentType = "text/plain";
+    request.send();
+    request.addEventListener(function (data) {
+        window.console.log(data);
+        if(data == "true"){
+            console.log("Reloading!");
+            window.location.reload();
+        }
+    })
+}
+window.setInterval(checkRefresh, 1000);
+
 </script>
 
 </body>

@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
-    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'stylesheet.css' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
     <title>Cashier</title>
 </head>
 <body>
@@ -49,7 +49,9 @@
     </div>
 </div>
 {% if not items %}
-    <script>window.setTimeout(location.reload, 500)</script>
+    <script>window.setTimeout(function () {
+        window.location.reload()
+    }, 500)</script>
 {% endif %}
 </body>
 
