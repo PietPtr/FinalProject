@@ -4,6 +4,8 @@ from django.db import models
 class Card(models.Model):
     identifier = models.IntegerField()
 
+    def __str__(self):
+        return str(self.id) + " : " + str(self.identifier)
 
 class Account(models.Model):
     card = models.ForeignKey(Card)
@@ -19,6 +21,9 @@ class Food(models.Model):
     descr = models.CharField(max_length=150)
     price = models.DecimalField(max_digits=5, decimal_places=2)
 
+    def __str__(self):
+        return str(self.name)
+
 
 class Order(models.Model):
     account = models.ForeignKey(Account, null=True)
@@ -26,6 +31,8 @@ class Order(models.Model):
     done = models.SmallIntegerField(default=0)
     chrono = models.DateTimeField(auto_now=False, auto_now_add=True)
 
+    def __str__(self):
+        return str(self.account) + " : " + str(self.food) + " : " + str(self.done) + " : " + str(self.chrono)
 
 class CardSwipe(models.Model):
     card = models.ForeignKey(Card)
