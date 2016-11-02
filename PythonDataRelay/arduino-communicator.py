@@ -9,6 +9,11 @@ try:
     file = open('relay.conf', 'r')
     server_address = file.readline().split('=')[1].replace('\n', '')
     terminal_type  = file.readline().split('=')[1].replace('\n', '')
+except IndexError:
+    print("An error occured while reading the config file.\n"
+          "Please try deleting 'relay.conf' and try again.\n"
+          "\n\n\nERROR CODE 003")
+    exit()
 except FileNotFoundError:
     file = open('relay.conf', 'w+')
     print("No config file was found. Let's create one now!")
@@ -111,8 +116,9 @@ def sendData(data):
 
 def readData():
     #read data from backend
-    #ser.print(data)	
-	
+    #ser.print(data)
+    pass
+
 while True:
     data = str(ser.readline())
     data = data[2:16]
