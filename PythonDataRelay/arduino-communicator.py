@@ -117,7 +117,6 @@ def sendData(data):
 
 def sendDataOverSerial(data):
     ser.write((data + "\n").encode())
-    pass
 
 while True:
     data = str(ser.readline())
