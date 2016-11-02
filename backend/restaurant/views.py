@@ -20,13 +20,6 @@ def setup(request):
     return HttpResponse("1526389563258964715965236589652856325698")
 
 
-def favicon(request):
-    response = HttpResponse(mimetype="image/ico")
-    img = Image.open("templates/favicon.ico")
-    img.save(response,'ico')
-    return response
-
-
 def stylesheet(request):
     template = loader.get_template("static/stylesheet.css")
     return HttpResponse(template.render(), content_type="text/css")
