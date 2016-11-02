@@ -1,1 +1,4 @@
 *.pyc
+/backend/.idea/*
+/backend/db.sqlite3
+*.conf
