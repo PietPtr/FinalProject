@@ -137,7 +137,10 @@ def init():
     # send n to arduino
 
 def decrypt(uid):
-    message = modExp(uid, d, n);
+    message = modExp(uid, d, n)
+    # remove first 8 and last 8 bits, which are random padding	
+    message = message & 0xFFFF00
+
     
     
 
