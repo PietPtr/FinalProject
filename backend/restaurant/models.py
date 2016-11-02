@@ -17,9 +17,6 @@ class Food(models.Model):
     descr = models.CharField(max_length=150)
     price = models.DecimalField(max_digits=5, decimal_places=2)
 
-    class Meta:
-        verbose_name = "Food.name"
-
 
 class Order(models.Model):
     account = models.ForeignKey(Account, null=True)
