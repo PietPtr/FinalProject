@@ -66,8 +66,8 @@ def genPrime (bitsize, rounds):
     if q % 2 == 0:
         q += 1
     
-    # there is no need to cbange to random primes, +2 is good enough, even though it has a bias to primes after a large gap
-    while not isPrimeComplex(q, rounds):
+    # there is no need to change to random primes, +2 is good enough, even though it has a bias to primes after a large gap
+    while not isPrime(q, rounds):
         q += 2
     return q
 
@@ -125,8 +125,8 @@ def init():
 
     while phi % EXPONENT == 0:
         ## print("phi is divisable by exponent, automatic retry")
-        
-        primeQ = genQ(SIZE_N-sizeP, MILLER_RABIN_ROUNDS)
+        primeP = genPrime(SIZE_N, MILLER_RABIN_ROUNDS)
+        primeQ = genPrime(SIZE_N, MILLER_RABIN_ROUNDS)
         phi = (primeP-1) * (primeQ-1)
     global n
     n = primeP * primeQ
