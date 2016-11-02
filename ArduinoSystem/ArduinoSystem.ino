@@ -275,29 +275,25 @@ void encrypt(unsigned long al, unsigned long bl, unsigned long cl, unsigned long
   bc_add(b, c, &c, DIGITS);
   bc_add(c, d, &n, DIGITS);
   
-  Serial.println("n");
   print_bignum(n);
   
   bc_str2num(&temp2, "5", DIGITS);
   bc_raise(temp1, temp2, &power, DIGITS);
   bc_multiply(prepadding, power, &temp1, DIGITS);
   
-  Serial.println("prepadding");
   print_bignum(temp1);
   
   bc_add(temp1, n, &prepadding, DIGITS);
   
-  Serial.println("pre + n");
   print_bignum(prepadding);
   
   bc_add(postpadding, prepadding, &n, DIGITS);
   
-  Serial.println("all");
   print_bignum(n);
   
   bc_raisemod(rsaE, n, rsaN, &temp1, DIGITS);
   
-  Serial.println("encrypted");
+  Serial.print ("ENC ");
   print_bignum(temp1);
   
   
