@@ -1,7 +1,9 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{%  static 'favicon.ico' %}"/>
     <title>Waiter</title>
 </head>
 <body>
@@ -52,7 +54,7 @@ function addItem(productname) {
 function removeItem(r) {
     var i = r.parentNode.parentNode.rowIndex;
     var request = new XMLHttpRequest();
-    request.open("GET","rmorder?food=" + r.parentElement.parentElement.food);
+    request.open("GET","rmorder?food=" + r.parentElement.parentElement.attributes.food.value);
     request.send();
     document.getElementById("ordertable").deleteRow(i);
 }
