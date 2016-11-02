@@ -122,6 +122,8 @@ def sendDataOverSerial(data):
 while True:
     data = str(ser.readline())
 
+    print(data)
+
     if (data[2:16].startswith('ID')):
         id = data.split(' ')[1:5]
 
@@ -138,6 +140,10 @@ while True:
         print("Scanned card   [DEBUG] ", num_id)
 
         sendData(num_id)
+    elif (data[2:16].startswith('ENC')):
+        encData = data.split(" ")[1].strip()
+        print(encData)
+        #sendData()
     elif (data[2:16].startswith('KEY')):
 
         r = http.request('GET',
@@ -145,5 +151,5 @@ while True:
 
         n = r.data.decode("UTF-8")
 
-        print("got", n, " from the server.")
+        print("got", n, "from the server.")
         sendDataOverSerial(n)
