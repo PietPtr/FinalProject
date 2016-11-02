@@ -24,7 +24,7 @@
     <div class="product">
         {% if foods %}
             {% for food in foods %}
-                <div class="item" onclick="moveItem('{{ food.name }}');" style="cursor: pointer;">
+                <div class="item" onclick="addItem('{{ food.name }}');" style="cursor: pointer;">
                     <p id="{{ food.name }}">{{ food.name }}</p>
                     <b>&#x20AC;</b><b id="{{ food.name }}Price">{{ food.price }}</b>
                     <p style="margin: 5px;">{{ food.descr }}</p>
@@ -35,17 +35,25 @@
 </div>
 
 <script>//by clicking, move menu item to order list
-function moveItem(productname) {
+
+function addItem(productname) {
     var table = document.getElementById("ordertable");
     var row = table.insertRow(-1);
+    row.setAttribute("food", productname);
     var cell1 = row.insertCell(0);
     var cell3 = row.insertCell(1);
     cell1.innerHTML = productname; //item name
     cell3.innerHTML = '<button onclick="removeItem(this)">remove</button>'
+    var request = new XMLHttpRequest();
+    request.open("GET","addorder?food=" + productname);
+    request.send();
 }
 
 function removeItem(r) {
     var i = r.parentNode.parentNode.rowIndex;
+    var request = new XMLHttpRequest();
+    request.open("GET","rmorder?food=" + r.parentElement.parentElement.food);
+    request.send();
     document.getElementById("ordertable").deleteRow(i);
 }
 </script>
