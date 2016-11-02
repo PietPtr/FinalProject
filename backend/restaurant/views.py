@@ -15,14 +15,29 @@ def index(request):
 
 
 def setup(request):
-    # init()
-    # return HttpResponse(str(n))
-    return HttpResponse("1526389563258964715965236589652856325698")
+    init()
+    print(getvalue("n"))
+    return HttpResponse(getvalue("n"))
+    # return HttpResponse("1526389563258964715965236589652856325698")
 
 
-def stylesheet(request):
-    template = loader.get_template("static/stylesheet.css")
-    return HttpResponse(template.render(), content_type="text/css")
+def reset(request):
+    if getvalue("reset") == "0":
+        a, b = random._urandom(5), random._urandom(5)
+        setvalue("reset", a+b)
+        return HttpResponse(getvalue("reset"))
+    if request.GET["answer"] == getvalue("reset"):
+        for account in Account.objects.all():
+            account.delete()
+        for cardswipe in CardSwipe.objects.all():
+            cardswipe.delete()
+        for variable in Variables.objects.all():
+            variable.delete()
+        for order in Order.objects.all():
+            order.delete()
+        return HttpResponse("Deleted!")
+    else:
+        return HttpResponse("Wrong!")
 
 
 def waiter(request):
@@ -118,36 +133,28 @@ def cardswiped(request):
 
 
 def getvalue(key):
-    return Variables.objects.filter(key=key)[:1][0]
+    return Variables.objects.filter(key=key)[:1][0].value
 
 
 def setvalue(key, value):
-    variable = Variables.objects.filter(key=key)[:1][0]
-    variable.value = value
+    variable = Variables.objects.filter(key=key)
+    if not variable:
+        variable = Variables(key=key, value=str(value))
+    else:
+        variable = variable[0]
+        variable.value = str(value)
     variable.save()
     return None
 
 
-def createvariable(key, value):
-    Variables(key=key, value=value).save()
-    return None
-
-
-primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107,
-          109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
-          233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293]
-
-EXPONENT = 17
-SIZE_N = 128
-MILLER_RABIN_ROUNDS = 40
-
-n = 0
-phi = 0
-d = 0
-
-
 def millerrabinfase1(number):
-    """ removes all numbers which are not prime, based on trial division """
+    """ removes all numbers which are not prime,based on trial division """
+    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103,
+              107,
+              109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227,
+              229,
+              233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293]
+
     if number % 2 == 0:
         return False
     else:
@@ -254,24 +261,25 @@ def modexp(a, b, n):
 
 
 def init():
-    primeP = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)
-    global primeQ
-    primeQ = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)
-    global phi
-    phi = (primeP - 1) * (primeQ - 1)
+    EXPONENT = 17
+    SIZE_N = 128
+    MILLER_RABIN_ROUNDS = 40
+
+    primep = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)
+    primeq = genprime(SIZE_N / 2, MILLER_RABIN_ROUNDS)
+    phi = (primep - 1) * (primeq - 1)
 
     while phi % EXPONENT == 0:
         # print("phi is divisable by exponent, automatic retry")
-        primeP = genprime(SIZE_N, MILLER_RABIN_ROUNDS)
-        primeQ = genprime(SIZE_N, MILLER_RABIN_ROUNDS)
-        phi = (primeP - 1) * (primeQ - 1)
-    global n
-    n = primeP * primeQ
-    global d
-    d = getdecryptionkey(EXPONENT, phi)
+        primep = genprime(SIZE_N, MILLER_RABIN_ROUNDS)
+        primeq = genprime(SIZE_N, MILLER_RABIN_ROUNDS)
+        phi = (primep - 1) * (primeq - 1)
+
+    setvalue("n", primep * primeq)
+    setvalue("d", getdecryptionkey(EXPONENT, phi))
 
 
 def decrypt(uid):
-    message = modexp(uid, d, n)
+    message = modexp(uid, int(getvalue("d")), int(getvalue("n")))
     # remove first 8 and last 8 bits, which are random padding
     return message & 0xFFFF00
