@@ -109,6 +109,10 @@ def sendData(data):
         body=serialize(encrypt(data)))
     r.read()
 
+def readData():
+    #read data from backend
+    #ser.print(data)	
+	
 while True:
     data = str(ser.readline())
     data = data[2:16]

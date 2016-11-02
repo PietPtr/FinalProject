@@ -38,14 +38,12 @@
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 const int PRIME_SIZE = 40;
 const int MILLER_RABIN_ROUNDS = 40;
+
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
 
 bc_num rsaN = NULL;
-bc_num rsaP = NULL;
-bc_num rsaQ = NULL;
-bc_num rsaD = NULL;
 bc_num rsaE = NULL;
 bc_num zero;
 bc_num one;
@@ -67,29 +65,22 @@ void setup() {
   mfrc522.PCD_Init();	// Init MFRC522 card
   bc_init_numbers ();     // Init bigNumber liberary
   
-  bc_num a=NULL, b = NULL, c = NULL;
-  bc_str2num(&rsaE, "65537", DIGITS);
+  bc_str2num(&rsaE, "17", DIGITS);
   bc_str2num(&zero, "0",DIGITS);
   bc_str2num(&one, "1",DIGITS);
   bc_str2num(&two, "2",DIGITS);
   
-  
-  // test multiplication  
-  //bc_str2num(&a, "41", DIGITS);
-  //bc_str2num(&b, "18254546", DIGITS);
-  
-  a = genPrime();
-  print_bignum(a);
-  
-  if(isPrime(a)){
-    Serial.print("prime\n");
-  }else{
-    Serial.print("not prime\n");
-  }  
-  print_bignum (a);
-  bc_free_num (&b);
-  bc_free_num (&c);
-
+  char number[PRIME_SIZE];
+  number[0] = '\0';
+  Serial.println("KEY?");
+  while(number[0] == '\0'){
+     Serial.readString().toCharArray(number, PRIME_SIZE);
+  }
+  Serial.print("KEY!");
+  bc_str2num(&rsaN, number, DIGITS);
+  print_bignum(rsaN);
+  //bc_str2num(&rsaN, "12", DIGITS);
+  //genKey();
 }
 
 void beep() {
@@ -155,7 +146,6 @@ bool tryMillerRabin(bc_num a, bc_num d, bc_num s, bc_num n){
   bc_num i;
   bc_str2num(&i, "0",DIGITS);
   print_bignum(n);
-  Serial.print("test3\n");
   for(; i < s; bc_add(i, one, &i, DIGITS)){
     bc_num temp2;
     bc_raise(two, i, &temp, DIGITS);
@@ -171,24 +161,18 @@ bool tryMillerRabin(bc_num a, bc_num d, bc_num s, bc_num n){
 
 
 bool isPrime(bc_num n) {
-  
-  if ( n == two){
+  if (bc_compare(n, two) == 0){
     return false;
   }
-  bc_num mod = NULL;
-  bc_modulo(n, two, &mod, DIGITS);
-  if( mod == two){
+  bc_num remainder;
+  bc_modulo(n, two, &remainder, DIGITS);
+  if(bc_compare(remainder, two) == 0){
     return false;
   }
-  
   bc_num s;
-  bc_num one;
-  bc_num two;
   bc_num d;
   bc_num temp;
   bc_str2num(&s, "0",DIGITS);
-  bc_str2num(&one, "1",DIGITS);
-  bc_str2num(&two, "2",DIGITS);
   bc_sub(n, one, &d, DIGITS);
   while (true){
     bc_num quot;
@@ -200,7 +184,6 @@ bool isPrime(bc_num n) {
     s += 1;
     d = quot;
   }
-
 
   for(int i = 0; i < MILLER_RABIN_ROUNDS; i++) {
     bc_num a;
@@ -214,22 +197,121 @@ bool isPrime(bc_num n) {
 
 
 
-bc_num genPrime() {
+bc_num genPrime(){
    bc_num test;
-   Serial.print("test next number\n");
+   Serial.println("test next number");
    genBigNum(test);
-   Serial.print("generated it\n");
+   Serial.println("generated it");
    while(!isPrime(test)){
-     Serial.print("test next prime\n");
+     Serial.println("test next prime");
      genBigNum(test);
    }
-   Serial.print("PRIME!!!\n");
+   Serial.print("PRIME!!!");
    return test;
 }
 
 void genKey(){
-  
+  bc_num test;
+  test = genPrime();
+  if(isPrime(test)){
+    Serial.print("prime");
+  }else{
+    Serial.print("not prime");
+  }  
 }
+
+void encrypt(unsigned long al, unsigned long bl, unsigned long cl, unsigned long dl){
+  bc_num prepadding;
+  bc_num postpadding;
+  bc_num temp1;
+  bc_num temp2;
+  bc_num power;
+  
+  bc_num a;
+  bc_num b;
+  bc_num c;
+  bc_num d;
+  
+  /*
+  unsigned long modulusN = a * (2L << 24) + b * (2L << 16) + c * (2L << 8) + d;
+  Serial.println(a);
+  Serial.println(a * (2L << 24));
+  Serial.println(b);
+  Serial.println(b * (2L << 16));
+  Serial.println(c);
+  Serial.println(c * (2L << 8));
+  Serial.println(d);
+  Serial.println(modulusN);
+  */
+  bc_num n;
+  
+  int pre = random(256);
+  int post = random(256);
+  
+  bc_int2num(&prepadding, pre);
+  bc_int2num(&postpadding, post);
+  
+  bc_int2num(&a, al);
+  bc_int2num(&b, bl);
+  bc_int2num(&c, cl);
+  bc_int2num(&d, dl);
+  
+  bc_str2num(&temp1, "256", DIGITS);
+  bc_multiply(a, temp1, &a, DIGITS);
+  
+  bc_multiply(b, temp1, &b, DIGITS);
+  bc_multiply(b, temp1, &b, DIGITS);
+  
+  bc_multiply(c, temp1, &c, DIGITS);
+  bc_multiply(c, temp1, &c, DIGITS);
+  bc_multiply(c, temp1, &c, DIGITS);
+
+  bc_multiply(d, temp1, &d, DIGITS);
+  bc_multiply(d, temp1, &d, DIGITS);
+  bc_multiply(d, temp1, &d, DIGITS);
+  bc_multiply(d, temp1, &d, DIGITS);
+  
+  bc_add(a, b, &b, DIGITS);
+  bc_add(b, c, &c, DIGITS);
+  bc_add(c, d, &n, DIGITS);
+  
+  Serial.println("n");
+  print_bignum(n);
+  
+  bc_str2num(&temp2, "5", DIGITS);
+  bc_raise(temp1, temp2, &power, DIGITS);
+  bc_multiply(prepadding, power, &temp1, DIGITS);
+  
+  Serial.println("prepadding");
+  print_bignum(temp1);
+  
+  bc_add(temp1, n, &prepadding, DIGITS);
+  
+  Serial.println("pre + n");
+  print_bignum(prepadding);
+  
+  bc_add(postpadding, prepadding, &n, DIGITS);
+  
+  Serial.println("all");
+  print_bignum(n);
+  
+  bc_raisemod(rsaE, n, rsaN, &temp1, DIGITS);
+  
+  Serial.println("encrypted");
+  print_bignum(temp1);
+  
+  
+  free(prepadding);
+  free(postpadding);
+  free(temp1);
+  free(temp2);
+  free(n);
+  
+  free(a);
+  free(b);
+  free(c);
+  free(d);
+}  
 
 void loop() {
 
@@ -270,6 +352,7 @@ void loop() {
     Serial.print(" ");
   }
   Serial.print("\n");
+  encrypt(mfrc522.uid.uidByte[0], mfrc522.uid.uidByte[1], mfrc522.uid.uidByte[2], mfrc522.uid.uidByte[3]);
 
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
