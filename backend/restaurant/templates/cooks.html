@@ -1,26 +1,131 @@
 <!DOCTYPE html>
 <html>
-<head>
-<link rel="stylesheet" type="text/css" href="stylesheet.css">
-<title>Cooks</title>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>Cafe-bar Celona</h1>
-  </div>
-  <div class="cooks">
-    <table>
-      <tr>
-        <th>product</th>
-        <th>remove</th>
-      </tr>
-    </table>
-  </div>
-  <div class="count">
-    <h2>Top 3:</h2>
-  </div>
-</div>
 
+<head>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+    <title>Cooks</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Cafe-bar Celona</h1>
+        </div>
+        <div class="cooks">
+            <table id="ordered">
+                <tr>
+                    <th>product</th>
+                    <th>remove</th>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+                <tr>
+                    <td>$</td>
+                    <td><button onclick="removeItem(this)">remove</button></td>
+                </tr>
+            </table>
+        </div>
+        <div class="count">
+            <h2>Top 3:</h2>
+
+            <script>
+                function compressArray(original) {
+
+                    var compressed = [];
+                    // make a copy of the input array
+                    var copy = original.slice(0);
+
+                    // first loop goes over every element
+                    for (var i = 0; i < original.length; i++) {
+
+                        var myCount = 0;
+                        // loop over every element in the copy and see if it's the same
+                        for (var w = 0; w < copy.length; w++) {
+                            if (original[i] == copy[w]) {
+                                // increase amount of times duplicate is found
+                                myCount++;
+                                // sets item to undefined
+                                delete copy[w];
+                            }
+                        }
+
+                        if (myCount > 0) {
+                            var a = new Object();
+                            a.value = original[i];
+                            a.count = myCount;
+                            compressed.push(a);
+                        }
+                    }
+
+                    return compressed;
+                };
+                var testArray = new Array("dog", "dog", "cat", "buffalo", "wolf", "cat", "tiger", "cat");
+                var newArray = compressArray(testArray);
+
+            </script>
+        </div>
+    </div>
+
+    <script>
+        function removeItem(r) {
+            var i = r.parentNode.parentNode.rowIndex;
+            document.getElementById("ordered").deleteRow(i);
+        }
+    </script>
 </body>
+
 </html>
