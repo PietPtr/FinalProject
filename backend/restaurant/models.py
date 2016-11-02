@@ -22,7 +22,7 @@ class Order(models.Model):
     account = models.ForeignKey(Account, null=True)
     food = models.ForeignKey(Food)
     done = models.SmallIntegerField(default=0)
-    chrono = models.DateTimeField(auto_add=False, auto_now_add=True)
+    chrono = models.DateTimeField(auto_now=False, auto_now_add=True)
 
 
 class CardSwipe(models.Model):
