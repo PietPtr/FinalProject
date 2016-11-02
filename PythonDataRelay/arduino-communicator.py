@@ -65,7 +65,7 @@ except FileNotFoundError:
 print("You are a", terminal_type)
 
 port = input("What port are you on? If you don't know, just press enter and "
-             "I'll look for one.")
+             "I'll look for one. ")
 
 ser = serial.Serial()
 
@@ -92,8 +92,10 @@ elif (ser.port == None and port != ""):
           " given port. \nPlease try running the program again and"
           " entering a different port. \nIf you are sure the port is"
           " correct, try plugging in the card scanning device in a"
-          " different USB port or using a different USB cable. \n\n"
-          "\nERROR CODE 001")
+          " different USB port or using a different USB cable, or on\n"
+          " Linux, try 'chmod 777 /dev/$PORT', where $PORT is something"
+          " like 'ttyACM0' or ttyUSB0"
+          "\n\n\nERROR CODE 001")
     exit()
 
 print("Succesfully established a connection with the card scanning device! \n"
@@ -113,16 +115,14 @@ def sendData(data):
         body=serialize(encrypt(data)))
     r.read()
 
-def readData():
-    #read data from backend
-    #ser.print(data)
+def sendDataOverSerial(data):
+    ser.write((data + "\n").encode())
     pass
 
 while True:
     data = str(ser.readline())
-    data = data[2:16]
 
-    if (data.startswith('ID')):
+    if (data[2:16].startswith('ID')):
         id = data.split(' ')[1:5]
 
         # make sure that all bytes contain 2 hex numbers
@@ -138,5 +138,12 @@ while True:
         print("Scanned card   [DEBUG] ", num_id)
 
         sendData(num_id)
-    elif (data.startswith('KEY')):
-        sendData(data)
+    elif (data[2:16].startswith('KEY')):
+
+        r = http.request('GET',
+            '130.89.239.225:8000/restaurant/setup')
+
+        n = r.data.decode("UTF-8")
+
+        print("got", n, " from the server.")
+        sendDataOverSerial(n)
