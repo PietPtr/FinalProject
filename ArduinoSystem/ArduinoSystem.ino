@@ -85,7 +85,7 @@ void setup() {
   SPI.begin();		// Init SPI bus
 
   mfrc522.PCD_Init();	// Init MFRC522 card
-
+  randomSeed(analogRead(A0));
 }
 
 void beep() {
