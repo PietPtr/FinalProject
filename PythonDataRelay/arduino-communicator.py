@@ -28,7 +28,7 @@ except FileNotFoundError:
 
         try:
             r = http.request('GET',
-                server_address + ':8000/restaurant/',
+                server_address + ':8000/checkurl',
                 timeout=1)
         except:
             print("This server doesn't seem to work... Please try another one.")
@@ -107,7 +107,7 @@ def serialize(data):
 def sendData(data):
     r = http.request(
         'POST',
-        server_address + ':8000/restaurant/cardswiped',
+        server_address + ':8000/cardswiped',
         headers={'Content-Type': 'application/json'},
         body=serialize(data))
     r.read()
