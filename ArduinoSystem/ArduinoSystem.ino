@@ -29,13 +29,12 @@
 
 #include <SPI.h>
 #include <MFRC522.h>
-#include <stdint.h>
 
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
-const uint8_t KEY[8] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xFF);
+byte KEY[8] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xFF};
 const int NUMROUNDS = 32;
 
 byte previous_uid[10];
@@ -43,7 +42,7 @@ byte previous_uid[10];
 unsigned long lastScanTime = 0;
 
 
-char sbox[] =
+byte sbox[] =
 { 0x02, 0x03, 0x05, 0x07, 0x0B, 0x0D, 0x11, 0x13,
   0x17, 0x1D, 0x1F, 0x25, 0x29, 0x2B, 0x2F, 0x35,
   0x3B, 0x3D, 0x43, 0x47, 0x49, 0x4F, 0x53, 0x59,
@@ -78,6 +77,9 @@ char sbox[] =
   0x2B, 0x2F, 0x3D, 0x41, 0x47, 0x49, 0x4D, 0x53 
 };
 
+void treyfer_enc (byte text[9], byte key[8]);
+void treyfer_dec (byte text[9], byte key[8]);
+
 void setup() {
   Serial.begin(9600);	// Initialize serial communications with the PC
   SPI.begin();		// Init SPI bus
@@ -105,8 +107,8 @@ void loop() {
   }
 
   // Look for new cards
-     if ( ! mfrc522.PICC_IsNewCardPresent()) {
-      return;
+  if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    return;
   }
 
   // Select one of the cards
@@ -128,7 +130,7 @@ void loop() {
   }
   beep();
   
-  uint8_t temp[9];
+  byte temp[9];
   temp[2] = mfrc522.uid.uidByte[0];
   temp[3] = mfrc522.uid.uidByte[1];
   temp[4] = mfrc522.uid.uidByte[2];
@@ -146,18 +148,17 @@ void loop() {
   lastScanTime = micros();
 }
 
-uint8_t rotl(uint8_t x) {
+byte rotl(byte x) {
   return (x << 1) | (x >> 7);
 }
 
-uint8_t rotr(uint8_t x) {
+byte rotr(byte x) {
   return (x >> 1) | (x << 7);
 }
 
-void treyfer_enc (uint8_t text[8], uint8_t key[8]);
-void treyfer_dec (uint8_t text[8], uint8_t key[8]);
 
-void treyfer_enc (uint8_t text[9], uint8_t key[8])
+
+void treyfer_enc (byte text[9], byte key[8])
 {
   text[0] = random(256);
   text[1] = random(256);
@@ -166,8 +167,8 @@ void treyfer_enc (uint8_t text[9], uint8_t key[8])
   text[7] = random(256);
   dump("TEXT", text, 8);
   
-  int r, i;
-  uint8_t t;
+  int i;
+  byte t;
 
   t = text[0];
   for (i = 0; i < 8*NUMROUNDS; i++) {
@@ -177,18 +178,22 @@ void treyfer_enc (uint8_t text[9], uint8_t key[8])
   }
 }
 
-void dump (char txt[], uint8_t in[], int len) {
+void dump (char txt[], byte in[], int len) {
   int i;
-  Serial.println(txt);
+  Serial.print(txt);
+  Serial.print(" ");
+  char buffer[50];
   for (i=0; i<len; i++) {
-    Serial.println(in[i], HEX);
+    sprintf(buffer, "%02X ", i++);
+    Serial.print(buffer);
   }
+  Serial.println();
 }
 
-void treyfer_dec (uint8_t text[9], uint8_t key[8])
+void treyfer_dec (byte text[9], uint8_t key[8])
 {
   int i;
-  uint8_t t;
+  byte t;
 
   for (i=(8*NUMROUNDS)-1; i>=0; i--) {
     t = text[(i)%8];
