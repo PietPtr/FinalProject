@@ -9,39 +9,38 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Cafe-bar Celona</h1>
-        </div>
-        <div class="login">
-            <h2>I am a...</h2>
-            <div class="loginwrapper">
-                {% if perms.restaurant.isWaiter %}
+<div class="container">
+    <div class="header">
+        <h1>Cafe-bar Celona</h1>
+    </div>
+    <div class="login">
+        <h2>I am a...</h2>
+        <div class="loginwrapper">
+            {% if perms.restaurant.isWaiter %}
                 <div class="item" onclick="redirect('waiter')" style="cursor: pointer;">
                     <p>Waiter</p>
                 </div>
-                {% endif %} {% if perms.restaurant.isCashier %}
+            {% endif %}
+            {% if perms.restaurant.isCashier %}
                 <div class="item" onclick="redirect('cashier')" style="cursor: pointer;">
                     <p>Cashier</p>
                 </div>
-                {% endif %} {% if perms.restaurant.isCook %}
-                <div class="item" onclick="redirect('cook')" style="cursor: pointer;">
-                    <p>Cook</p>
+            {% endif %}
+            {% if perms.restaurant.isCook %}
+                <div class="item" onclick="redirect('cooks')" style="cursor: pointer;">
+                    <p>Cook (only available in beta version)</p>
                 </div>
-                {% endif %} {% if perms.restaurant.isBoss %}
-                <div class="item" onclick="redirect('bookkeeping')" style="cursor: pointer">
-                    <p>Bookkeeper (available at the beta version)</p>
-                </div>
-                {% endif %}
-            </div><br>
-            <input type="button" value="Log out" onclick="redirect('logout')" />
+            {% endif %}
         </div>
+        <br>
+        <input type="button" value="logout" onclick="redirect('logout')"/>
     </div>
-    <script>
-        function redirect(site) {
-            window.location = site;
-        }
-    </script>
+</div>
+<script>
+    function redirect(site) {
+        window.location = site;
+    }
+</script>
 
 
 </body>
