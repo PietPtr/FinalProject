@@ -163,7 +163,6 @@ void treyfer_enc (byte text[9], byte key[8])
   
   text[6] = random(256);
   text[7] = random(256);
-  dump("TEXT", text, 8);
   
   int i;
   byte t;

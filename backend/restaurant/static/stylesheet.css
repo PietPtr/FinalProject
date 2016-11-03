@@ -41,13 +41,20 @@ h3 {
 }
 
 h4 {
+    color: #ffffff;
     margin-top: 16px;
 }
 
+
 h5 {
     color: #b40404;
-    margin-top: 20px;
 }
+
+h6 {
+    color: #ffffff;
+    font-size: 150%
+}
+
 
 table {
     border-style: hidden;
