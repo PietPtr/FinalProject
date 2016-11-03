@@ -3,3 +3,4 @@
 /backend/db.sqlite3
 *.conf
 /backend/backend/__pychache__/*
+todo.list
