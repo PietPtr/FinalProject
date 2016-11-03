@@ -56,6 +56,12 @@ h6 {
 }
 
 
+.click {
+    color: #000000;
+    font-size: 150%;
+}
+
+
 table {
     border-style: hidden;
     border-color: #ffffff;
