@@ -1,6 +1,8 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 import json
 import random
 
@@ -56,6 +58,32 @@ def reset(request):
         return HttpResponse("Deleted!")
 
 
+def login_view(request):
+    return render(request, "login.html")
+
+
+def verify(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username = username, password = password)
+    if user is not None:
+        login(request, user)
+        return HttpResponseRedirect("menu")
+    else:
+        return render(request, "login.html", {"Error" : True})
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect("login")
+
+
+@login_required
+def menu(request):
+    return render(request, "menu.html")
+
+
+@login_required
 def waiter(request):
     # get all foods from database
     foods = Food.objects.all().order_by('name')
@@ -99,7 +127,7 @@ def rmorder(request):
     print("Removed: " + request.GET.get("food"))
     return HttpResponse("Done!")
 
-
+@login_required
 def cashier(request):
     # get all recent card-swipes
     swipes = (CardSwipe.objects.filter(device="cashier")[:1])

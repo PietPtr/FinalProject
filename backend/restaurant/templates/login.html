@@ -10,7 +10,11 @@
 <div class="container">
   <div class="login">
     <div class="loginbox">
-      <form>
+        {% if Error %}
+        <h3> Invalid credentials! </h3>
+        {% endif %}
+      <form action="verify" method="post">
+          {% csrf_token %}
         username:<br>
         <input type="text" name="username"><br>
         password:<br>

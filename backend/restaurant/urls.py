@@ -4,6 +4,10 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^login$', views.login_view, name='login'),
+    url(r'^verify$', views.verify, name='verify'),
+    url(r'^logout$', views.logout_view, name='logout'),
+    url(r'^menu$', views.menu, name='menu'),
     url(r'^setup$', views.setup, name='setup'),
     url(r'^waiter$', views.waiter, name='waiter'),
     url(r'^cleanitems$', views.cleanitems, name='cleanitems'),
