@@ -16,14 +16,17 @@
     <div class="login">
         <h2>I am a...</h2>
         {% if perms.restaurant.isWaiter %}
-            <a href="waiter">Waiter</a><br>
+            <div class="item" onclick="waiter" style="cursor: pointer;"><p>Waiter</p></div>
         {% endif %}
         {% if perms.restaurant.isCashier %}
-            <a href="cashier">Cashier</a><br>
+            <div class="item" onclick="cashier" style="cursor: pointer;"><p>Cashier</p></div>
         {% endif %}
         {% if perms.restaurant.isCook %}
-            <a href="cooks">Cook (only avaible in beta)</a><br>
+            <div class="item" onclick="cooks" style="cursor: pointer;"><p>Cook (only avaible in beta version)</p></div><br>
         {% endif %}
+        <form action="logout">
+    <input type="submit" value="logout" />
+</form>
     </div>
 </div>
 
