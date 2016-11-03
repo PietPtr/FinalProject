@@ -136,9 +136,7 @@ void loop() {
   temp[4] = mfrc522.uid.uidByte[2];
   temp[5] = mfrc522.uid.uidByte[3];
   treyfer_enc(temp, KEY);
-  dump("ENCRYPTED", temp, 8);
-  treyfer_dec(temp, KEY);
-  dump("DECRYPTED", temp, 8);
+  dump("ENC", temp, 8);
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
@@ -184,7 +182,7 @@ void dump (char txt[], byte in[], int len) {
   Serial.print(" ");
   char buffer[50];
   for (i=0; i<len; i++) {
-    sprintf(buffer, "%02X ", i++);
+    sprintf(buffer, "%02X", in[i]);
     Serial.print(buffer);
   }
   Serial.println();
