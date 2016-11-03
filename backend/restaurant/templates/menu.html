@@ -16,19 +16,22 @@
     <div class="login">
         <h2>I am a...</h2>
         {% if perms.restaurant.isWaiter %}
-            <div class="item" onclick="waiter" style="cursor: pointer;"><p>Waiter</p></div>
+            <div class="item" onclick="redirect('waiter')" style="cursor: pointer;"><p>Waiter</p></div>
         {% endif %}
         {% if perms.restaurant.isCashier %}
-            <div class="item" onclick="cashier" style="cursor: pointer;"><p>Cashier</p></div>
+            <div class="item" onclick="redirect('cashier')" style="cursor: pointer;"><p>Cashier</p></div>
         {% endif %}
         {% if perms.restaurant.isCook %}
-            <div class="item" onclick="cooks" style="cursor: pointer;"><p>Cook (only avaible in beta version)</p></div><br>
+            <div class="item" onclick="redirect('cooks')" style="cursor: pointer;"><p>Cook (only avaible in beta version)</p></div>
+            <br>
         {% endif %}
-        <form action="logout">
-    <input type="submit" value="logout" />
-</form>
+            <input type="button" value="logout" onclick="redirect('logout')"/>
     </div>
 </div>
-
+<script>
+    function redirect(site) {
+        window.location = site;
+    }
+</script>
 
 </body>
