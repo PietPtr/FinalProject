@@ -84,4 +84,5 @@ class Permission(models.Model):
             ("isCook", "Can see the cooks page"),
             ("isWaiter", "Can see the waiter page"),
             ("isCashier", "Can see the cashier page"),
+            ("isBoss", "Can see the bookkeeping page"),
         )

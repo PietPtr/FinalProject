@@ -245,3 +245,50 @@ div.loginwrapper {
   height: auto;
   display:inline-block;
 }
+
+div.prices {
+    background-color: #0078ff;
+    width: 800px;
+    height: 640px;
+    margin: 0px 20px 0px 0px;
+    border-bottom-right-radius: 40px;
+    position: relative;
+    float: left;
+    overflow-y: scroll;
+}
+
+
+div.pricesheader {
+    background-color: #0078ff;
+    width: 800px;
+    height: 80px;
+    margin: 20px 20px 0px 0px;
+    border-top-right-radius: 40px;
+    border-top-left-radius: 40px;
+    position: relative;
+    float: left;
+}
+
+
+div.foodandq {
+    background-color: #0078ff;
+    width: 440px;
+    height: 720px;
+    margin: 20px 0px 20px 20px;
+    border-radius: 40px;
+    position: relative;
+    float: right;
+    overflow-y: scroll;
+}
+
+
+div.foodandqheader {
+    background-color: #0078ff;
+    width: 400px;
+    height: 80px;
+    margin: 40px 0px 0 px 0px;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    position: relative;
+    float: left;
+}

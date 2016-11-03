@@ -28,6 +28,10 @@
                 <div class="item" onclick="redirect('cook')" style="cursor: pointer;">
                     <p>Cook</p>
                 </div>
+                {% endif %} {% if perms.restaurant.isBoss %}
+                <div class="item" onclick="redirect('bookkeeping')" style="cursor: pointer">
+                    <p>Bookkeeper (available at the beta version)</p>
+                </div>
                 {% endif %}
             </div><br>
             <input type="button" value="Log out" onclick="redirect('logout')" />
