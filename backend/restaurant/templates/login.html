@@ -1,7 +1,8 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="../static/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
 </header>
 <title>Login</title>
 </head>
@@ -14,7 +15,7 @@
         <input type="text" name="username"><br>
         password:<br>
         <input type="password" name="password"><br>
-        <input type="button" name="submit" value="submit">
+        <input type="submit" value="Login">
       </form>
     </div>
   </div>
