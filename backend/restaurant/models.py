@@ -45,3 +45,12 @@ class CardSwipe(models.Model):
 class Variables(models.Model):
     key = models.CharField(max_length=1024)
     value = models.CharField(max_length=1024)
+
+
+class Permission(models.Model):
+    class Meta:
+        permissions = (
+            ("isCook", "Can see the cooks page"),
+            ("isWaiter", "Can see the waiter page"),
+            ("isCashier", "Can see the cashier page"),
+        )
