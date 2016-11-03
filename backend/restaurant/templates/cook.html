@@ -75,7 +75,7 @@
     function removeItem(r) {
         var i = r.parentNode.parentNode.rowIndex;
         var request = new XMLHttpRequest();
-        request.open("GET", "rmorder?food=" + r.parentElement.parentElement.attributes.food.value);
+        request.open("GET", "confirmorder?food=" + r.parentElement.parentElement.attributes.food.value);
         request.send();
         document.getElementById("ordertable").deleteRow(i);
     }

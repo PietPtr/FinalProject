@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
-    <link rel="shortcut icon" type="image/png" href="{%  static 'favicon.ico' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'stylesheet.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <title>Waiter</title>
 </head>
 <body>
@@ -47,32 +47,33 @@ function addItem(productname) {
     cell1.innerHTML = productname; //item name
     cell3.innerHTML = '<button onclick="removeItem(this)">remove</button>'
     var request = new XMLHttpRequest();
-    request.open("GET","addorder?food=" + productname);
+    request.open("GET", "addorder?food=" + productname);
     request.send();
 }
 
 function removeItem(r) {
     var i = r.parentNode.parentNode.rowIndex;
     var request = new XMLHttpRequest();
-    request.open("GET","rmorder?food=" + r.parentElement.parentElement.attributes.food.value);
+    request.open("GET", "rmorder?food=" + r.parentElement.parentElement.attributes.food.value);
     request.send();
     document.getElementById("ordertable").deleteRow(i);
 }
 
 function checkRefresh() {
-    var request = new XMLHttpRequest();
-    request.open("GET","cleanitems");
-    request.contentType = "text/plain";
-    request.send();
-    request.addEventListener(function (data) {
-        window.console.log(data);
-        if(data != "false"){
-            console.log("Reloading!");
-            window.location.reload();
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            if (data.doreload) {
+                window.location.reload();
+            }
         }
-    })
+    };
+    xmlhttp.open("GET", "cleanitems", true);
+    xmlhttp.send();
 }
-window.setInterval(checkRefresh, 1000);
+
+window.setInterval(checkRefresh, 250);
 
 </script>
 

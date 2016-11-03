@@ -14,7 +14,7 @@
     <div class="billheader">
         <h2>Checkout-bill</h2>
     </div>
-    <div class="bill">
+    <div id="bill">
         <table>
             <tr>
                 <th style="width: 200px;">product id</th>
@@ -49,9 +49,23 @@
     </div>
 </div>
 {% if not items %}
-    <script>window.setTimeout(function () {
-        window.location.reload()
-    }, 500)</script>
+    <script>
+        function checkRefresh() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = JSON.parse(this.responseText);
+                    if (data.isdata) {
+                        window.location.reload();
+                    }
+                }
+            };
+            xmlhttp.open("GET", "getbill", true);
+            xmlhttp.send();
+        }
+
+        window.setInterval(checkRefresh, 250);
+    </script>
 {% endif %}
 </body>
 

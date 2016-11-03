@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 import json
 import random
 
+from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from restaurant.models import Order, CardSwipe, Account, Food, Card, Variables
@@ -27,6 +28,8 @@ def setup(request):
     return HttpResponse(getvalue("n"))
 
 
+@login_required
+@permission_required('restaurant.isBoss')
 def reset(request):
     """Make the user complete a captcha so the system doesn't get reset by accident"""
     # get the desired result in a variable
@@ -72,6 +75,7 @@ def verify(request):
         return render(request, "login.html", {'Error': True})
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return render(request, "login.html", {'Logout': True})
@@ -110,9 +114,9 @@ def cleanitems(request):
         # remove the last cardswipe and tell the waiter-frontend to refresh
         swipe = swipes[0]
         swipe.delete()
-        return HttpResponse("true", content_type="text/plain")
+        return HttpResponse(json.dumps({'doreload': True}), content_type="text/json")
     else:
-        return HttpResponse("false", content_type="text/plain")
+        return HttpResponse(json.dumps({'doreload': False}), content_type="text/json")
 
 
 def addorder(request):
@@ -149,16 +153,18 @@ def cashier(request):
         # get the first one
         swiped = swipes[0]
         # get the first (and probably only) swipe
-        account = Account.objects.filter(card=swiped.card, active=1)
+        accounts = Account.objects.filter(card=swiped.card, active=1)
+        if not accounts:
+            return render(request, "error.html", {'message': "This card does not belong to an account!"})
         # get the account that belongs to that swipe
-        items = Order.objects.filter(account=account)
+        items = Order.objects.filter(account=accounts[0])
         # get all items that account has bought
         price = 0
         for item in items:
             # add up the price
             price += item.food.price
         # pack it into the context
-        context = {'id': swiped.pk, 'items': items, 'price': price, 'doreload': False}
+        context = {'id': swiped.identifier, 'items': items, 'price': price, 'doreload': False}
     else:
         # if there are no swipes, then just serve the page
         context = {'id': 0, 'price': "0,00", 'doreload': True}
@@ -168,7 +174,7 @@ def cashier(request):
 
 def checkout(request):
     # this is called, when the pay-button is pressed
-    print(request.GET.get("swipeid"))
+    print("Doing the checkout for cardswipe: " + request.GET.get("swipeid"))
     # get the swipe-object belonging to that swipeid
     swipe = CardSwipe.objects.filter(identifier=request.GET.get("swipeid"))[:1][0]
     # get the account which the order belongs to
@@ -189,18 +195,26 @@ def checkout(request):
     return HttpResponseRedirect("cashier", False)
 
 
+def getbill(request):
+    swipes = CardSwipe.objects.filter(device='cashier')
+    if swipes:
+        return HttpResponse(json.dumps({'isdata': True}), content_type="text/json")
+    else:
+        return HttpResponse(json.dumps({'isdata': False}), content_type="text/json")
+
+
 @csrf_exempt
 def cardswiped(request):
     # if you want to introduce new cards to the system, you can change this to True
     # it should be False for normal operation
-    addmode = False
-
     # get the data from the client and parse the json-data
     data = json.loads(request.body.decode('utf-8'))
 
     # if the data-object has been correctly parsed
     if data:
-        cardid = treyferdec(data["id"])
+        # TODO reimplement decryption
+        # cardid = treyferdec(data["id"])
+        cardid = data["id"]
         cardtype = data["type"]
         # print the information for debug-purposes
         print("Card swiped:")
@@ -208,7 +222,7 @@ def cardswiped(request):
         print(cardtype)
         # get all the cards with this specific card-id from the system (expected is wither 1 or 0 entries)
         cards = Card.objects.filter(identifier=str(cardid))
-        if addmode:
+        if getvalue("addmode") == "1":
             # if the card is already known to the system, the cards-object will be empty and return False
             if not cards:
                 # create a new card with the received identifier
@@ -222,8 +236,6 @@ def cardswiped(request):
             # if the system is not in addmode, add the already known card to a new CardSwipe-object,
             # which will later be processed by the webinterfaces
             swipe = CardSwipe(card=Card.objects.filter(identifier=cardid)[0], device=cardtype)
-            # and save it
-            swipe.save()
             # we also get a list of possible accounts
             accounts = Account.objects.filter(card=cards[0], active=1)
             # if the source of the packet is a waiter, then
@@ -236,6 +248,7 @@ def cardswiped(request):
                 for order in orders:
                     order.account = account
                     order.save()
+                swipe.save()
                 print("Card has been swiped at the waiter-terminal to make an order!")
             elif cardtype == "cashier":
                 # if the card has been swiped as the cashier
@@ -246,6 +259,7 @@ def cardswiped(request):
                     newaccount.save()
                     print("Card has been swiped at the cashier-terminal to activate a Card!")
                 else:
+                    swipe.save()
                     print("Card has been swiped at the cashier-terminal to make a Payment and return the Card!")
             else:
                 print("Packet contained an invalid type!")
@@ -335,7 +349,7 @@ def treyferdec(text):
 
     data = []
     for i in range(0, len(text), 2):
-        data.append(int(text[i] + text[i+1], 16))
+        data.append(int(text[i] + text[i + 1], 16))
 
     for i in range(8 * NUMROUNDS - 1, 0, -1):
         t = data[i % 8]
