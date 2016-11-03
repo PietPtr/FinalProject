@@ -161,7 +161,7 @@ def cashier(request):
         context = {'id': swiped.pk, 'items': items, 'price': price, 'doreload': False}
     else:
         # if there are no swipes, then just serve the page
-        context = {'id': 0, 'price': "0,00€", 'doreload': True}
+        context = {'id': 0, 'price': "0,00", 'doreload': True}
     # render the template
     return render(request, 'cashier.html', context)
 

@@ -22,7 +22,7 @@
             <div class="item" onclick="redirect('cashier')" style="cursor: pointer;"><p>Cashier</p></div>
         {% endif %}
         {% if perms.restaurant.isCook %}
-            <div class="item" onclick="redirect('cooks')" style="cursor: pointer;"><p>Cook (only avaible in beta version)</p></div>
+            <div class="item" onclick="redirect('cooks')" style="cursor: pointer;"><p>Cook (only available in beta version)</p></div>
             <br>
         {% endif %}
             <input type="button" value="logout" onclick="redirect('logout')"/>
