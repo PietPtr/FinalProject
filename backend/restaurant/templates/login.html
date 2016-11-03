@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
+    <link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
 </header>
 <title>Login</title>
 </head>
@@ -11,13 +12,16 @@
   <div class="login">
     <div class="loginbox">
         {% if Error %}
-        <h3> Invalid credentials! </h3>
+        <h5> Invalid credentials! </h5>
+        {% endif %}
+        {% if Logout %}
+        <h4> You have been logged out. </h4>
         {% endif %}
       <form action="verify" method="post">
           {% csrf_token %}
-        username:<br>
+        Username:<br>
         <input type="text" name="username"><br>
-        password:<br>
+        Password:<br>
         <input type="password" name="password"><br>
         <input type="submit" value="Login">
       </form>

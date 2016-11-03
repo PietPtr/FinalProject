@@ -75,7 +75,7 @@ def verify(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect("login")
+    return render(request, "login.html", {"Logout": True})
 
 
 @login_required
