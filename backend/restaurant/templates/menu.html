@@ -16,13 +16,13 @@
     <div class="login">
         <h2>I am a...</h2>
         {% if perms.restaurant.permission.isWaiter %}
-            <a href="waiter">Waiter</a><br>
+            <div class="item" onclick="waiter" style="cursor: pointer;"><b>Waiter</b></div>
         {% endif %}
         {% if perms.restaurant.permission.isCashier %}
-            <a href="cashier">Cashier</a><br>
+            <div class="item" onclick="cashier" style="cursor: pointer;"><b>Cashier</b></div>
         {% endif %}
         {% if perms.restaurant.permission.isCook %}
-            <a href="cooks">Cook (only avaible in beta)</a><br>
+            <div class="item" onclick="cooks" style="cursor: pointer;"><b>Cook (only avaible in beta)</b></div>
         {% endif %}
     </div>
 </div>
