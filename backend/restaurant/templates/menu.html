@@ -9,29 +9,34 @@
 </head>
 
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Cafe-bar Celona</h1>
+    <div class="container">
+        <div class="header">
+            <h1>Cafe-bar Celona</h1>
+        </div>
+        <div class="login">
+            <h2>I am a...</h2>
+            <div class="loginwrapper">
+                {% if perms.restaurant.isWaiter %}
+                <div class="item" onclick="redirect('waiter')" style="cursor: pointer;">
+                    <p>Waiter</p>
+                </div>
+                {% endif %} {% if perms.restaurant.isCashier %}
+                <div class="item" onclick="redirect('cashier')" style="cursor: pointer;">
+                    <p>Cashier</p>
+                </div>
+                {% endif %} {% if perms.restaurant.isCook %}
+                <div class="item" onclick="redirect('cooks')" style="cursor: pointer;">
+                    <p>Cook (only available in beta version)</p>
+                </div>
+                {% endif %}
+            </div><br>
+            <input type="button" value="logout" onclick="redirect('logout')" />
+        </div>
     </div>
-    <div class="login">
-        <h2>I am a...</h2>
-        {% if perms.restaurant.isWaiter %}
-            <div class="item" onclick="redirect('waiter')" style="cursor: pointer;"><p>Waiter</p></div>
-        {% endif %}
-        {% if perms.restaurant.isCashier %}
-            <div class="item" onclick="redirect('cashier')" style="cursor: pointer;"><p>Cashier</p></div>
-        {% endif %}
-        {% if perms.restaurant.isCook %}
-            <div class="item" onclick="redirect('cooks')" style="cursor: pointer;"><p>Cook (only available in beta version)</p></div>
-            <br>
-        {% endif %}
-            <input type="button" value="logout" onclick="redirect('logout')"/>
-    </div>
-</div>
-<script>
-    function redirect(site) {
-        window.location = site;
-    }
-</script>
+    <script>
+        function redirect(site) {
+            window.location = site;
+        }
+    </script>
 
 </body>

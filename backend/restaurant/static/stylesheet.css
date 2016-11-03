@@ -233,3 +233,9 @@ div.count {
   border-radius: 40px;
   position: relative;
 }
+
+div.loginwrapper {
+  width: auto;
+  height: auto;
+  display:inline-block;
+}
