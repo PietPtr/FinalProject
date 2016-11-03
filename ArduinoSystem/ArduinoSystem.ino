@@ -29,59 +29,61 @@
 
 #include <SPI.h>
 #include <MFRC522.h>
-#include "BigNumber.h"
-#include "number.h"
-//http://www.gammon.com.au/Arduino/BigNumber.zip
+#include <stdint.h>
 
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
-const int PRIME_SIZE = 40;
-const int MILLER_RABIN_ROUNDS = 40;
+
+const uint8_t KEY[8] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xFF);
+const int NUMROUNDS = 32;
 
 byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
 
-bc_num rsaN = NULL;
-bc_num rsaE = NULL;
-bc_num zero;
-bc_num one;
-bc_num two;
 
-
-int DIGITS = 0;
-
-void print_bignum(bc_num x) {
-  char *s=bc_num2str(x);
-  Serial.println(s);
-  free(s); 
-}
+char sbox[] =
+{ 0x02, 0x03, 0x05, 0x07, 0x0B, 0x0D, 0x11, 0x13,
+  0x17, 0x1D, 0x1F, 0x25, 0x29, 0x2B, 0x2F, 0x35,
+  0x3B, 0x3D, 0x43, 0x47, 0x49, 0x4F, 0x53, 0x59,
+  0x61, 0x65, 0x67, 0x6B, 0x6D, 0x71, 0x7F, 0x83,
+  0x89, 0x8B, 0x95, 0x97, 0x9D, 0xA3, 0xA7, 0xAD,
+  0xB3, 0xB5, 0xBF, 0xC1, 0xC5, 0xC7, 0xD3, 0xDF,
+  0xE3, 0xE5, 0xE9, 0xEF, 0xF1, 0xFB, 0x01, 0x07,
+  0x0D, 0x0F, 0x15, 0x19, 0x1B, 0x25, 0x33, 0x37,
+  0x39, 0x3D, 0x4B, 0x51, 0x5B, 0x5D, 0x61, 0x67,
+  0x6F, 0x75, 0x7B, 0x7F, 0x85, 0x8D, 0x91, 0x99,
+  0xA3, 0xA5, 0xAF, 0xB1, 0xB7, 0xBB, 0xC1, 0xC9,
+  0xCD, 0xCF, 0xD3, 0xDF, 0xE7, 0xEB, 0xF3, 0xF7,
+  0xFD, 0x09, 0x0B, 0x1D, 0x23, 0x2D, 0x33, 0x39,
+  0x3B, 0x41, 0x4B, 0x51, 0x57, 0x59, 0x5F, 0x65,
+  0x69, 0x6B, 0x77, 0x81, 0x83, 0x87, 0x8D, 0x93,
+  0x95, 0xA1, 0xA5, 0xAB, 0xB3, 0xBD, 0xC5, 0xCF,
+  0xD7, 0xDD, 0xE3, 0xE7, 0xEF, 0xF5, 0xF9, 0x01,
+  0x05, 0x13, 0x1D, 0x29, 0x2B, 0x35, 0x37, 0x3B,
+  0x3D, 0x47, 0x55, 0x59, 0x5B, 0x5F, 0x6D, 0x71,
+  0x73, 0x77, 0x8B, 0x8F, 0x97, 0xA1, 0xA9, 0xAD,
+  0xB3, 0xB9, 0xC7, 0xCB, 0xD1, 0xD7, 0xDF, 0xE5,
+  0xF1, 0xF5, 0xFB, 0xFD, 0x07, 0x09, 0x0F, 0x19,
+  0x1B, 0x25, 0x27, 0x2D, 0x3F, 0x43, 0x45, 0x49,
+  0x4F, 0x55, 0x5D, 0x63, 0x69, 0x7F, 0x81, 0x8B,
+  0x93, 0x9D, 0xA3, 0xA9, 0xB1, 0xBD, 0xC1, 0xC7,
+  0xCD, 0xCF, 0xD5, 0xE1, 0xEB, 0xFD, 0xFF, 0x03,
+  0x09, 0x0B, 0x11, 0x15, 0x17, 0x1B, 0x27, 0x29,
+  0x2F, 0x51, 0x57, 0x5D, 0x65, 0x77, 0x81, 0x8F,
+  0x93, 0x95, 0x99, 0x9F, 0xA7, 0xAB, 0xAD, 0xB3,
+  0xBF, 0xC9, 0xCB, 0xCF, 0xD1, 0xD5, 0xDB, 0xE7,
+  0xF3, 0xFB, 0x07, 0x0D, 0x11, 0x17, 0x1F, 0x23,
+  0x2B, 0x2F, 0x3D, 0x41, 0x47, 0x49, 0x4D, 0x53 
+};
 
 void setup() {
   Serial.begin(9600);	// Initialize serial communications with the PC
   SPI.begin();		// Init SPI bus
 
   mfrc522.PCD_Init();	// Init MFRC522 card
-  bc_init_numbers ();     // Init bigNumber liberary
-  
-  bc_str2num(&rsaE, "17", DIGITS);
-  bc_str2num(&zero, "0",DIGITS);
-  bc_str2num(&one, "1",DIGITS);
-  bc_str2num(&two, "2",DIGITS);
-  
-  char number[PRIME_SIZE];
-  number[0] = '\0';
-  while(number[0] == '\0'){
-    Serial.println("KEY PLEASE ");
-    Serial.readString().toCharArray(number, PRIME_SIZE);
-    delay(100);
-  }
-  Serial.println("GOT KEY START SCANNING");
-  bc_str2num(&rsaN, number, DIGITS);
-  print_bignum(rsaN);
-  //bc_str2num(&rsaN, "12", DIGITS);
-  //genKey();
+
 }
 
 void beep() {
@@ -90,225 +92,9 @@ void beep() {
   tone(3, 540, 80);
 }
 
-bc_num genBigNum (bc_num num){
-  int counter;
-  char stringNumber[PRIME_SIZE+1];
-  for(counter = 0; counter < PRIME_SIZE-1; counter++){
-    stringNumber[counter]= random(10)+'0';
-  }
-  stringNumber[PRIME_SIZE-1] = random(4)*2+'1';  //last digit odd
-  stringNumber[PRIME_SIZE]= '\0';
-  
-  bc_str2num(&num, stringNumber, DIGITS);
-  print_bignum(num);
-  return num;
+void signal() {
+  tone(3, 540, 80);
 }
-
-
-bc_num extendedEuclidean(bc_num a, bc_num b){
-  bc_num olda = a;
-  bc_num oldb = b;
-  bc_str2num(&one, "1",DIGITS);
-  bc_str2num(&zero, "0",DIGITS);
-  bc_num x0 = one, x1 = zero, y0 = zero, y1 = one;
-  bc_num q;
-  bc_num temp;
-  
-  while (b != 0){
-    
-    bc_divide(a, b, &q, DIGITS);
-    bc_modulo(a, b, &b, DIGITS); //might need mod function
-    a = b;
-   
-    bc_multiply(q, x1, &temp, DIGITS); 
-    bc_sub(x0, temp, &x1, DIGITS);
-    //x1 = x0 - temp;
-    x0 = x1;
-    bc_multiply(q, y1, &temp, DIGITS);
-    bc_sub(y0, temp, &y1, DIGITS);
-    //y1 = y0 - temp;
-    y0 = y1;
-  }
-  bc_modulo(x0, oldb, &x0, DIGITS);
-  //x0 = x0 % oldb;
-  return x0;
-}
-
-bool tryMillerRabin(bc_num a, bc_num d, bc_num s, bc_num n){
-  Serial.print("test\n");
-  bc_num temp;
-  bc_raisemod(a, d, n, &temp, DIGITS);
-  print_bignum(a);
-  print_bignum(d);
-  print_bignum(n);
-  if (bc_compare(temp, one) == 0){
-    return false;
-  }
-  bc_num i;
-  bc_str2num(&i, "0",DIGITS);
-  print_bignum(n);
-  for(; i < s; bc_add(i, one, &i, DIGITS)){
-    bc_num temp2;
-    bc_raise(two, i, &temp, DIGITS);
-    bc_multiply(temp, d, &temp, DIGITS);
-    bc_sub(n, one, &temp2, DIGITS);
-    bc_raisemod(a, temp, n, &temp, DIGITS);
-    if(bc_compare(temp, temp2) == 0){
-      return false;
-    }  
-  }
-  return true;  
-}
-
-
-bool isPrime(bc_num n) {
-  if (bc_compare(n, two) == 0){
-    return false;
-  }
-  bc_num remainder;
-  bc_modulo(n, two, &remainder, DIGITS);
-  if(bc_compare(remainder, two) == 0){
-    return false;
-  }
-  bc_num s;
-  bc_num d;
-  bc_num temp;
-  bc_str2num(&s, "0",DIGITS);
-  bc_sub(n, one, &d, DIGITS);
-  while (true){
-    bc_num quot;
-    bc_num remainder;
-    bc_divmod(d, two, &quot, &remainder, DIGITS);
-    if(bc_compare(remainder, one) == 0){
-      break;
-    }
-    s += 1;
-    d = quot;
-  }
-
-  for(int i = 0; i < MILLER_RABIN_ROUNDS; i++) {
-    bc_num a;
-    bc_int2num(&a, random(10000));
-    if (tryMillerRabin(a, d, s, n)){
-      return false;
-    }  
-  }    
-  return true;
-}  
-
-
-
-bc_num genPrime(){
-   bc_num test;
-   Serial.println("test next number");
-   genBigNum(test);
-   Serial.println("generated it");
-   while(!isPrime(test)){
-     Serial.println("test next prime");
-     genBigNum(test);
-   }
-   Serial.print("PRIME!!!");
-   return test;
-}
-
-void genKey(){
-  bc_num test;
-  test = genPrime();
-  if(isPrime(test)){
-    Serial.print("prime");
-  }else{
-    Serial.print("not prime");
-  }  
-}
-
-void encrypt(unsigned long al, unsigned long bl, unsigned long cl, unsigned long dl){
-  bc_num prepadding;
-  bc_num postpadding;
-  bc_num temp1;
-  bc_num temp2;
-  bc_num power;
-  
-  bc_num a;
-  bc_num b;
-  bc_num c;
-  bc_num d;
-  
-  /*
-  unsigned long modulusN = a * (2L << 24) + b * (2L << 16) + c * (2L << 8) + d;
-  Serial.println(a);
-  Serial.println(a * (2L << 24));
-  Serial.println(b);
-  Serial.println(b * (2L << 16));
-  Serial.println(c);
-  Serial.println(c * (2L << 8));
-  Serial.println(d);
-  Serial.println(modulusN);
-  */
-  bc_num n;
-  
-  int pre = random(256);
-  int post = random(256);
-  
-  bc_int2num(&prepadding, pre);
-  bc_int2num(&postpadding, post);
-  
-  bc_int2num(&a, al);
-  bc_int2num(&b, bl);
-  bc_int2num(&c, cl);
-  bc_int2num(&d, dl);
-  
-  bc_str2num(&temp1, "256", DIGITS);
-  bc_multiply(a, temp1, &a, DIGITS);
-  
-  bc_multiply(b, temp1, &b, DIGITS);
-  bc_multiply(b, temp1, &b, DIGITS);
-  
-  bc_multiply(c, temp1, &c, DIGITS);
-  bc_multiply(c, temp1, &c, DIGITS);
-  bc_multiply(c, temp1, &c, DIGITS);
-
-  bc_multiply(d, temp1, &d, DIGITS);
-  bc_multiply(d, temp1, &d, DIGITS);
-  bc_multiply(d, temp1, &d, DIGITS);
-  bc_multiply(d, temp1, &d, DIGITS);
-  
-  bc_add(a, b, &b, DIGITS);
-  bc_add(b, c, &c, DIGITS);
-  bc_add(c, d, &n, DIGITS);
-  
-  print_bignum(n);
-  
-  bc_str2num(&temp2, "5", DIGITS);
-  bc_raise(temp1, temp2, &power, DIGITS);
-  bc_multiply(prepadding, power, &temp1, DIGITS);
-  
-  print_bignum(temp1);
-  
-  bc_add(temp1, n, &prepadding, DIGITS);
-  
-  print_bignum(prepadding);
-  
-  bc_add(postpadding, prepadding, &n, DIGITS);
-  
-  print_bignum(n);
-  
-  bc_raisemod(rsaE, n, rsaN, &temp1, DIGITS);
-  
-  Serial.print ("ENC ");
-  print_bignum(temp1);
-  
-  
-  free(prepadding);
-  free(postpadding);
-  free(temp1);
-  free(temp2);
-  free(n);
-  
-  free(a);
-  free(b);
-  free(c);
-  free(d);
-}  
 
 void loop() {
 
@@ -340,15 +126,79 @@ void loop() {
   if (equal) {
     return;
   }
-
-
-  encrypt(mfrc522.uid.uidByte[0], mfrc522.uid.uidByte[1], mfrc522.uid.uidByte[2], mfrc522.uid.uidByte[3]);
-
+  beep();
+  
+  uint8_t temp[9];
+  temp[2] = mfrc522.uid.uidByte[0];
+  temp[3] = mfrc522.uid.uidByte[1];
+  temp[4] = mfrc522.uid.uidByte[2];
+  temp[5] = mfrc522.uid.uidByte[3];
+  treyfer_enc(temp, KEY);
+  dump("ENCRYPTED", temp, 8);
+  treyfer_dec(temp, KEY);
+  dump("DECRYPTED", temp, 8);
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
 
-  beep();
+  signal();
 
   lastScanTime = micros();
 }
+
+uint8_t rotl(uint8_t x) {
+  return (x << 1) | (x >> 7);
+}
+
+uint8_t rotr(uint8_t x) {
+  return (x >> 1) | (x << 7);
+}
+
+void treyfer_enc (uint8_t text[8], uint8_t key[8]);
+void treyfer_dec (uint8_t text[8], uint8_t key[8]);
+
+void treyfer_enc (uint8_t text[9], uint8_t key[8])
+{
+  text[0] = random(256);
+  text[1] = random(256);
+  
+  text[6] = random(256);
+  text[7] = random(256);
+  dump("TEXT", text, 8);
+  
+  int r, i;
+  uint8_t t;
+
+  t = text[0];
+  for (i = 0; i < 8*NUMROUNDS; i++) {
+    t += key[i%8];
+    t = sbox[t] + text[(i+1)%8];
+    text[(i+1) % 8] = t = rotl(t);
+  }
+}
+
+void dump (char txt[], uint8_t in[], int len) {
+  int i;
+  Serial.println(txt);
+  for (i=0; i<len; i++) {
+    Serial.println(in[i], HEX);
+  }
+}
+
+void treyfer_dec (uint8_t text[9], uint8_t key[8])
+{
+  int i;
+  uint8_t t;
+
+  for (i=(8*NUMROUNDS)-1; i>=0; i--) {
+    t = text[(i)%8];
+    t += key[i%8];
+    text[(i+1) % 8] = rotr(text[(i+1) % 8]);
+    text[(i+1) % 8] = text[(i+1) % 8] - sbox[t];
+  }
+}
+
+
+
+
+
