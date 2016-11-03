@@ -101,9 +101,6 @@ elif (ser.port == None and port != ""):
 print("Succesfully established a connection with the card scanning device! \n"
       "You can start scanning now.")
 
-def encrypt(text):
-    return text
-
 def serialize(data):
     return json.dumps({'id': data, 'type': terminal_type})
 
@@ -112,7 +109,7 @@ def sendData(data):
         'POST',
         server_address + ':8000/restaurant/cardswiped',
         headers={'Content-Type': 'application/json'},
-        body=serialize(encrypt(data)))
+        body=serialize(data))
     r.read()
 
 def sendDataOverSerial(data):
@@ -120,33 +117,8 @@ def sendDataOverSerial(data):
 
 while True:
     data = str(ser.readline())
-    
-    if (data[2:16].startswith('ID')):
-        id = data.split(' ')[1:5]
 
-        # make sure that all bytes contain 2 hex numbers
-        for i in range(len(id)):
-            if len(id[i]) == 1:
-                id[i] = '0' + id[i]
-
-        id = ''.join(id)
-
-        # convert the hex ID to a number
-        num_id = int(id, 16)
-
-        print("Scanned card   [DEBUG] ", num_id)
-
-        sendData(num_id)
-    elif (data[2:16].startswith('ENC')):
+    if (data[2:16].startswith('ENC')):
         encData = data.split(" ")[1].split("\\")[0]
         print("Succesfully scanned card!    ", encData)
         sendData(encData)
-    elif (data[2:16].startswith('KEY')):
-
-        r = http.request('GET',
-            '130.89.239.225:8000/restaurant/setup')
-
-        n = r.data.decode("UTF-8")
-
-        print("got", n, "from the server.")
-        sendDataOverSerial(n)
