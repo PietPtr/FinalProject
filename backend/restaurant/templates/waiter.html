@@ -66,7 +66,7 @@ function checkRefresh() {
     request.send();
     request.addEventListener(function (data) {
         window.console.log(data);
-        if(data == "true"){
+        if(data != "false"){
             console.log("Reloading!");
             window.location.reload();
         }
