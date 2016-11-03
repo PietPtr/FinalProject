@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^getbill$', views.getbill, name='getbill'),
 
     url(r'^cook$', views.cook, name='cook'),
+    url(r'^confirmorder$', views.confirmorder, name='confirmorder'),
 
     url(r'^reset$', views.reset, name='reset'),
 

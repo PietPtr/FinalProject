@@ -3,8 +3,8 @@
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="{%  static 'stylesheet.css' %}">
-    <link rel="shortcut icon" type="image/png" href="{%  static 'favicon.ico' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'stylesheet.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <title>Cooks</title>
 </head>
 
@@ -12,7 +12,7 @@
 <div class="container">
     <div class="header">
         <h1>Cafe-bar Celona</h1>
-        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;" />
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;"/>
     </div>
     <div class="cooks">
         <table id="ordered">
@@ -22,15 +22,14 @@
             </tr>
             {% if foods %}
                 {% for food in foods %}
-                    <tr>
-                        <td>food.name</td>
+                    <tr food="{{ food.name }}">
+                        <td>{{ food.name }}</td>
                         <td>
-                            <button onclick="removeItem(this)">remove</button>
+                            <button onclick="removeItem(this)">done</button>
                         </td>
                     </tr>
                 {% endfor %}
             {% endif %}
-
         </table>
     </div>
     <div class="count">
@@ -76,17 +75,16 @@
 
 <script>
     function removeItem(r) {
-        var i = r.parentNode.parentNode.rowIndex;
+        var i = r.parentElement.parentElement.rowIndex;
         var request = new XMLHttpRequest();
         request.open("GET", "confirmorder?food=" + r.parentElement.parentElement.attributes.food.value);
         request.send();
-        document.getElementById("ordertable").deleteRow(i);
+        document.getElementById("ordered").deleteRow(i);
     }
 
-
-    function redirect(site) {
-        window.location = site;
-    }
+    window.setTimeout(function () {
+        location.reload();
+    }, 10 * 1000);
 
 
 </script>

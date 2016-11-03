@@ -65,8 +65,8 @@ def login_view(request):
 
 
 def verify(request):
-    username = request.POST.get("username")
-    password = request.POST.get("password")
+    username = request.POST.get("username", "")
+    password = request.POST.get("password", "")
     user = authenticate(username=username, password=password)
     if user is not None:
         login(request, user)
@@ -93,8 +93,16 @@ def cook(request):
     foods = []
     for order in orders:
         foods.append(order.food)
-    context = {'orders': foods}
+    context = {'foods': foods}
     return render(request, "cook.html", context)
+
+
+def confirmorder(request):
+    name = request.GET.get("food", "")
+    food = Food.objects.filter(name=name)[:1][0]
+    order = Order.objects.filter(food=food, done=0)[:1][0]
+    order.delete()
+    return HttpResponse("Done!")
 
 
 @login_required
@@ -123,23 +131,23 @@ def addorder(request):
     """This function is called, when the waiter adds an item to the checkout-list"""
     # get the food that was selected
     food = Food.objects.filter(name=request.GET["food"])[:1][0]
-    print("Adding: " + request.GET.get("food"))
+    print("Adding: " + request.GET.get("food", "ERROR"))
     # create a new order without an assigned account
     order = Order(food=food)
     order.save()
-    print("Added: " + request.GET.get("food"))
+    print("Added: " + request.GET.get("food", "ERROR"))
     return HttpResponse("Done!")
 
 
 def rmorder(request):
     """This function is called, when the waiter removes an item from the checkout-list"""
-    print("Removing: " + request.GET.get("food"))
+    print("Removing: " + request.GET.get("food", "ERROR"))
     # get the food that has been ordered and delete one order
     # (it doesn't matter which, since there is only one waiter that can have orders) of that food
-    food = Food.objects.filter(name=request.GET.get("food"))[:1][0]
+    food = Food.objects.filter(name=request.GET.get("food", "ERROR"))[:1][0]
     order = Order.objects.filter(food=food)[:1][0]
     order.delete()
-    print("Removed: " + request.GET.get("food"))
+    print("Removed: " + request.GET.get("food", "ERROR"))
     return HttpResponse("Done!")
 
 
@@ -174,9 +182,9 @@ def cashier(request):
 
 def checkout(request):
     # this is called, when the pay-button is pressed
-    print("Doing the checkout for cardswipe: " + request.GET.get("swipeid"))
+    print("Doing the checkout for cardswipe: " + request.GET.get("swipeid", "0"))
     # get the swipe-object belonging to that swipeid
-    swipe = CardSwipe.objects.filter(identifier=request.GET.get("swipeid"))[:1][0]
+    swipe = CardSwipe.objects.filter(identifier=request.GET.get("swipeid", "0"))[:1][0]
     # get the account which the order belongs to
     account = Account.objects.filter(card=swipe.card, active=1)[:1][0]
     # get the orders that account has made
