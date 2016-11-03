@@ -8,28 +8,24 @@
     <title>Menu</title>
 </head>
 
-
-
 <body>
-    <div class="container">
-        <div class="header">
-          <h1>Cafe-bar Celona</h1>
-        </div>
-        <div class="login">
-          <h2>I am a...</h2>
-          <h6><ul>
-              {%  if perms.restaurant.isWaiter %}
-            <a href="waiter">Waiter</a><br><br>
-              {% endif %}
-                {% if perms.restaurant.isCashier %}
-            <a href="cashier">Cashier</a><br><br>
-            {%  endif %}
-            {% if perms.restaurant.isCook %}
-            <a href="cooks">Cook (only available in beta)</a><br><br>
-            {% endif %}
-              </h6>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>Cafe-bar Celona</h1>
     </div>
+    <div class="login">
+        <h2>I am a...</h2>
+        {% if perms.restaurant.permission.isWaiter %}
+            <a href="waiter">Waiter</a><br>
+        {% endif %}
+        {% if perms.restaurant.permission.isCashier %}
+            <a href="cashier">Cashier</a><br>
+        {% endif %}
+        {% if perms.restaurant.permission.isCook %}
+            <a href="cooks">Cook (only avaible in beta)</a><br>
+        {% endif %}
+    </div>
+</div>
 
 
 </body>
