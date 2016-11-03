@@ -10,6 +10,7 @@
 <div class="container">
     <div class="header">
         <h1>Cafe-bar Celona</h1>
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;" />
     </div>
     <div class="productheader">
         <h2>Menu</h2>
@@ -73,6 +74,10 @@ function checkRefresh() {
     })
 }
 window.setInterval(checkRefresh, 1000);
+
+    function redirect(site) {
+        window.location = site;
+        }
 
 </script>
 

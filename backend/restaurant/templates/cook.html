@@ -10,6 +10,7 @@
 <div class="container">
     <div class="header">
         <h1>Cafe-bar Celona</h1>
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;" />
     </div>
     <div class="cooks">
         <table id="ordered">
@@ -78,6 +79,9 @@
         request.open("GET", "rmorder?food=" + r.parentElement.parentElement.attributes.food.value);
         request.send();
         document.getElementById("ordertable").deleteRow(i);
+    }
+    function redirect(site) {
+        window.location = site;
     }
 </script>
 </body>

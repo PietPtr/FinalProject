@@ -10,6 +10,7 @@
 <div class="container">
     <div class="header">
         <h1>Cafe-bar Celona</h1>
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;" />
     </div>
     <div class="billheader">
         <h2>Checkout-bill</h2>
@@ -53,6 +54,11 @@
         window.location.reload()
     }, 500)</script>
 {% endif %}
+<script>
+    function redirect(site) {
+        window.location = site;
+    }
+</script>
 </body>
 
 </html>
