@@ -7,6 +7,7 @@ class Card(models.Model):
     def __str__(self):
         return str(self.id) + " : " + str(self.identifier)
 
+
 class Account(models.Model):
     card = models.ForeignKey(Card)
     active = models.SmallIntegerField(default=0)
@@ -34,7 +35,9 @@ class Order(models.Model):
     def __str__(self):
         return str(self.account) + " : " + str(self.food) + " : " + str(self.done) + " : " + str(self.chrono)
 
+
 class CardSwipe(models.Model):
+    identifier = models.AutoField(primary_key=True)
     card = models.ForeignKey(Card)
     device = models.CharField(max_length=50)
 
