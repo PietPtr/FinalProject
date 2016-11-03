@@ -3,7 +3,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.login_view, name='login'),
+    url(r'^checkurl$', views.checkurl, name='checkurl'),
     url(r'^login$', views.login_view, name='login'),
     url(r'^cook$', views.cook, name='cook'),
     url(r'^verify$', views.verify, name='verify'),

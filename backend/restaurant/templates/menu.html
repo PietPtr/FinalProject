@@ -15,13 +15,13 @@
     </div>
     <div class="login">
         <h2>I am a...</h2>
-        {% if perms.restaurant.permission.isWaiter %}
+        {% if perms.restaurant.isWaiter %}
             <a href="waiter">Waiter</a><br>
         {% endif %}
-        {% if perms.restaurant.permission.isCashier %}
+        {% if perms.restaurant.isCashier %}
             <a href="cashier">Cashier</a><br>
         {% endif %}
-        {% if perms.restaurant.permission.isCook %}
+        {% if perms.restaurant.isCook %}
             <a href="cooks">Cook (only avaible in beta)</a><br>
         {% endif %}
     </div>
