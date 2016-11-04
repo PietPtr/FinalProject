@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.db import models
 
+# this file denotes our database-layout
+
 
 class Card(models.Model):
     identifier = models.IntegerField()

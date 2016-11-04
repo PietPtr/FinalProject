@@ -12,19 +12,8 @@ from restaurant.models import Order, CardSwipe, Account, Food, Card, Variables
 
 
 def checkurl(request):
-    # Default reply to let the client know that this is the correct server
+    """This url is called by the arduino to check if the server is compatible"""
     return HttpResponse("Correct IP")
-
-
-def setup(request):
-    # this needs to be called by any client to retrieve the key
-    if getvalue("not firstrun") == "":
-        setvalue("not firstrun", "false")
-        # initialize the encryption-system
-        print("Encryption Key: " + getvalue("n"))
-    # send the key to the client
-    # (this part is going to change)
-    return HttpResponse(getvalue("n"))
 
 
 @login_required
@@ -42,7 +31,7 @@ def reset(request):
         # store the result of their addition in the database
         setvalue("reset", a + b)
         # send both variables as a response
-        return HttpResponse(str(a) + " : " + str(b))
+        return HttpResponse(str(a) + " + " + str(b))
     else:
         # if the varialble matches the userinput match, reset all tables
         for account in Account.objects.all():
@@ -54,11 +43,12 @@ def reset(request):
         for order in Order.objects.all():
             order.delete()
         # send a confirmation message if everything worked out
+        # (otherwise the system would show an error page)
         return HttpResponse("Deleted!")
 
 
 def login_view(request):
-    # send request to login page
+    # serve the login page
     return render(request, "login.html")
 
 
@@ -89,24 +79,24 @@ def logout_view(request):
 
 @login_required
 def menu(request):
+    # serve the menu page
     return render(request, "menu.html")
 
 
 @login_required
 @permission_required('restaurant.isBoss')
 def bookkeeping(request):
+    # serve the bookkeeping page
     return render(request, "bookkeeping.html")
 
 
 @login_required
 @permission_required('restaurant.isCook')
 def cook(request):
-    orders = Order.objects.filter(done=0,)
-    foods = []
-    for order in orders:
-        foods.append(order.food)
-    context = {'foods': foods}
-    return render(request, "cook.html", context)
+    # get all orders that are not done
+    orders = Order.objects.filter(done=0)
+    # render the orders to the cooks page
+    return render(request, "cook.html", {'orders': orders})
 
 
 def confirmorder(request):

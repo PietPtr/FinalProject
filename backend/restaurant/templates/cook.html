@@ -1,5 +1,5 @@
-{# An html page for the cooks. Open orders are copied on this page and cooks can remove them if they're done by pushing
-a button with remove. #}
+{# A page for the cooks. Open orders are copied on this page and #}
+{# cooks can remove them if they're done by pushing a button with remove. #}
 
 {% load staticfiles %}
 <!DOCTYPE html>
@@ -21,12 +21,12 @@ a button with remove. #}
         <table id="ordered">
             <tr>
                 <th style="width: 300px;">product</th>
-                <th style="width: 300px;">remove</th>
+                <th style="width: 300px;">done</th>
             </tr>
-            {% if foods %}
-                {% for food in foods %}
-                    <tr food="{{ food.name }}">
-                        <td>{{ food.name }}</td>
+            {% if orders %}
+                {% for order in orders %}
+                    <tr food="{{ order.food.name }}">
+                        <td>{{ order.food.name }}</td>
                         <td>
                             <button onclick="removeItem(this)">done</button>
                         </td>
