@@ -41,7 +41,11 @@ byte previous_uid[10];
 
 unsigned long lastScanTime = 0;
 
-
+/*
+ * sbox, substitution box, these are the last 8 bits of the first 256 primes.
+ * Original design document of Treyfer says high density machine code could also be used.
+ * It however also states that for testing and verification the first 256 primes should be used.
+ */
 byte sbox[] =
 { 0x02, 0x03, 0x05, 0x07, 0x0B, 0x0D, 0x11, 0x13,
   0x17, 0x1D, 0x1F, 0x25, 0x29, 0x2B, 0x2F, 0x35,
@@ -81,11 +85,11 @@ void treyfer_enc (byte text[9], byte key[8]);
 void treyfer_dec (byte text[9], byte key[8]);
 
 void setup() {
-  Serial.begin(9600);	// Initialize serial communications with the PC
-  SPI.begin();		// Init SPI bus
+  Serial.begin(9600);	      // Initialize serial communications with the PC
+  SPI.begin();		      // Init SPI bus
 
-  mfrc522.PCD_Init();	// Init MFRC522 card
-  randomSeed(analogRead(A0));
+  mfrc522.PCD_Init();	      // Init MFRC522 card
+  randomSeed(analogRead(A0)); // Arduino will generate the exact same sequence if you don't seed random
 }
 
 void beep() {
@@ -99,7 +103,8 @@ void signal() {
 }
 
 void loop() {
-
+  
+  //no scans for 5 seconds, clear array of scanned cards 
   if (micros() - lastScanTime >= 5000000) {
     for (int i = 0; i < 10; i++) {
       previous_uid[i] = 0;
@@ -128,28 +133,35 @@ void loop() {
   if (equal) {
     return;
   }
+  
+  //beep to confirm scanning
   beep();
   
+  //reorganizing bytes so it becomes 2 bytes padding, 4 bytes UID, 2 bytes padding.
   byte temp[9];
   temp[2] = mfrc522.uid.uidByte[0];
   temp[3] = mfrc522.uid.uidByte[1];
   temp[4] = mfrc522.uid.uidByte[2];
   temp[5] = mfrc522.uid.uidByte[3];
   treyfer_enc(temp, KEY);
+  
+  //send encrypted UID
   dump("ENC", temp, 8);
   for (int i = 0; i < mfrc522.uid.size; i++) {
     previous_uid[i] = mfrc522.uid.uidByte[i];
   }
-
+  //signal to confirm encryption is finished
   signal();
 
   lastScanTime = micros();
 }
 
+//rotate left a byte
 byte rotl(byte x) {
   return (x << 1) | (x >> 7);
 }
 
+//rotate right a byte
 byte rotr(byte x) {
   return (x >> 1) | (x << 7);
 }
@@ -158,6 +170,16 @@ byte rotr(byte x) {
 
 void treyfer_enc (byte text[9], byte key[8])
 {
+/* 
+ * Text should be formated as: 
+ * 2 bytes of padding
+ * 4 bytes UID
+ * 2 bytes of padding
+ *
+ * this method will change the 4 padding bytes to random values.
+ * preventing the same card UID from becoming a predictable encryption
+ * Which would allow know plaintext attacks if the USB data was also captured
+ */
   text[0] = random(256);
   text[1] = random(256);
   
@@ -189,6 +211,7 @@ void dump (char txt[], byte in[], int len) {
 
 void treyfer_dec (byte text[9], uint8_t key[8])
 {
+  //reference for decryption
   int i;
   byte t;
 
