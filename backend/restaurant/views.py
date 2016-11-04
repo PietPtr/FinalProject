@@ -298,6 +298,14 @@ def cardswiped(request):
     return HttpResponse("OK")
 
 
+def bookkeeping(request):
+    orders = Order.objects.all()
+    totalprice = 0
+    if orders:
+        for order in orders:
+            totalprice += 0
+
+
 def getvalue(key):
     """gets a stored variable from the database or an empty string if there is no variable stored"""
     variable = Variables.objects.filter(key=key)
