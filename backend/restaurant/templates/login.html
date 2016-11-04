@@ -14,9 +14,11 @@
     </div>
   <div class="login">
     <div class="loginbox">
+        <!-- The error this page will give when redirected to login with an error = True -->
         {% if Error %}
         <h5> Invalid credentials! </h5>
         {% endif %}
+        <!-- The message this page will give when redirected to login with a logout label -->
         {% if Logout %}
         <h4> You have been logged out. </h4>
         {% endif %}

@@ -76,6 +76,10 @@ def verify(request):
         return render(request, "login.html", {'Error': True})
 
 
+# @login_required defines if you need permission to enter the .html page
+# @permission_required defines which specific permission you need to enter a certain .html page
+
+
 @login_required
 def logout_view(request):
     # return to login page but with a logout message
