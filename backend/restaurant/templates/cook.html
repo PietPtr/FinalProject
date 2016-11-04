@@ -1,3 +1,6 @@
+{# An html page for the cooks. Open orders are copied on this page and cooks can remove them if they're done by pushing
+a button with remove. #}
+
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
@@ -36,6 +39,7 @@
 </body>
 
 <script>
+    // removes the order from the cook page
     function removeItem(r) {
         var i = r.parentElement.parentElement.rowIndex;
         var request = new XMLHttpRequest();
