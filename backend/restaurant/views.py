@@ -104,7 +104,8 @@ def confirmorder(request):
     name = request.GET.get("food", "")
     food = Food.objects.filter(name=name)[:1][0]
     order = Order.objects.filter(food=food, done=0)[:1][0]
-    order.delete()
+    order.done = 1
+    order.save()
     return HttpResponse("Done!")
 
 
