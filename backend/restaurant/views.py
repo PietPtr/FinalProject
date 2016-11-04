@@ -316,6 +316,7 @@ def bookkeeping(request):
         return render(request, "bookkeeping.html", {'payments': [
             {'date': "Today", 'cash': "€" + str(totalprice), 'pin': "€0,00", 'credit': "€0,00", 'check': "€0,00"}],
             'sales': foodlist})
+    return render(request, "bookkeeping.html", {})
 
 
 def getvalue(key):
