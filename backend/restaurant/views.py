@@ -302,7 +302,7 @@ def cardswiped(request):
 
 
 def bookkeeping(request):
-    orders = Order.objects.all()
+    orders = Order.objects.filter(account__paid=1)
     totalprice = 0
     if orders:
         for order in orders:
