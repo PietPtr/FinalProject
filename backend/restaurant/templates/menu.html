@@ -27,8 +27,13 @@
                 </div>
             {% endif %}
             {% if perms.restaurant.isCook %}
-                <div class="item" onclick="redirect('cooks')" style="cursor: pointer;">
-                    <p>Cook (only available in beta version)</p>
+                <div class="item" onclick="redirect('cook')" style="cursor: pointer;">
+                    <p>Cook</p>
+                </div>
+            {% endif %}
+            {% if perms.restaurant.isBoss %}
+                <div class="item" onclick="redirect('bookkeeping')" style="cursor: pointer;">
+                    <p>Bookkeeper (only available in beta version)</p>
                 </div>
             {% endif %}
         </div>

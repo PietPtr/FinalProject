@@ -1,0 +1,69 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'stylesheet.css' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+    <title>Bookkeeping</title>
+</head>
+
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Cafe-bar Celona</h1>
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer" />
+    </div>
+    <div class="foodandq">
+        <h2>Income</h2>
+        <table>
+            <tr>
+                <td style="width: 200px;">Date:</td>
+                <td style="width: 100px;">Cash:</td>
+                <td style="width: 100px;">PIN:</td>
+                <td style="width: 100px;">Credit card:</td>
+                <td style="width: 100px;">Check:</td>
+            </tr>
+            {% if payments %}
+                {% for item in payments %}
+                    <tr>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.cash }}</td>
+                        <td>{{ item.pin }}</td>
+                        <td>{{ item.credit }}</td>
+                        <td>{{ item.check }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+    <div class="pricesheader">
+        <h2>Ordered products</h2>
+    </div>
+    <div class="prices">
+        <table>
+            <tr>
+                <td style="width: 250px;">Date:</td>
+                <td style="width: 400px;">Food:</td>
+                <td style="width: 250px;">Quantity:</td>
+            </tr>
+            {% if payments %}
+                {% for item in payments %}
+                    <tr>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.food }}</td>
+                        <td>{{ item.quantity }}</td>
+                    </tr>
+               {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+</div>
+
+<script>
+    function redirect(site) {
+        window.location = site;
+    }
+</script>
+
+</body>

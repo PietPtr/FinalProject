@@ -82,6 +82,11 @@ def logout_view(request):
 def menu(request):
     return render(request, "menu.html")
 
+@login_required
+@permission_required('restaurant.isBoss')
+def bookkeeping(request):
+    return render(request, "bookkeeping.html")
+
 
 @login_required
 @permission_required('restaurant.isCook')
