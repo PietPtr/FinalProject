@@ -100,7 +100,7 @@ void signal() {
 
 void loop() {
 
-  if (micros() - lastScanTime >= 10000000) {
+  if (micros() - lastScanTime >= 5000000) {
     for (int i = 0; i < 10; i++) {
       previous_uid[i] = 0;
     }
