@@ -16,6 +16,7 @@
     <div class="login">
         <h2>I am a...</h2>
         <div class="loginwrapper">
+            <!-- Menu options for users with permission -->
             {% if perms.restaurant.isWaiter %}
                 <div class="item" onclick="redirect('waiter')" style="cursor: pointer;">
                     <p>Waiter</p>
@@ -42,6 +43,7 @@
     </div>
 </div>
 <script>
+    // function to redirect to the selected site while clicking the button
     function redirect(site) {
         window.location = site;
     }
