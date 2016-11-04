@@ -82,6 +82,7 @@ def logout_view(request):
 def menu(request):
     return render(request, "menu.html")
 
+
 @login_required
 @permission_required('restaurant.isBoss')
 def bookkeeping(request):
@@ -127,7 +128,8 @@ def cleanitems(request):
             Account.objects.filter(card=swipe.card)[0]
         except:
             swipe.delete()
-            return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "Card rejected!"}), content_type="text/json")
+            return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "Card rejected!"}),
+                                content_type="text/json")
         swipe.delete()
         return HttpResponse(json.dumps({'doreload': True, 'error': False}), content_type="text/json")
     else:
@@ -177,7 +179,8 @@ def cashier(request):
         accounts = Account.objects.filter(card=swiped.card, active=1)
         if not accounts:
             swiped.delete()
-            return render(request, "error.html", {'message': "This card does not belong to an account!", 'returnpage': "cashier"})
+            return render(request, "error.html",
+                          {'message': "This card does not belong to an account!", 'returnpage': "cashier"})
         # get the account that belongs to that swipe
         items = Order.objects.filter(account=accounts[0])
         # get all items that account has bought
@@ -303,7 +306,16 @@ def bookkeeping(request):
     totalprice = 0
     if orders:
         for order in orders:
-            totalprice += 0
+            totalprice += order.food.price
+        foodlist = []
+        for food in Food.objects.all():
+            torders = Order.objects.filter(food=food)
+            if torders:
+                foodlist.append({'date': "Today", 'food': food.name, 'quantity': len(torders)})
+
+        return render(request, "bookkeeping.html", {'payments': [
+            {'date': "Today", 'cash': "€" + str(totalprice), 'pin': "€0,00", 'credit': "€0,00", 'check': "€0,00"}],
+            'sales': foodlist})
 
 
 def getvalue(key):
@@ -316,7 +328,6 @@ def getvalue(key):
     else:
         # return nothing
         return ""
-
 
 def setvalue(key, value):
     """creates or changes a variable stored in the database"""
@@ -333,7 +344,6 @@ def setvalue(key, value):
     # save the variable in the database
     variable.save()
     return None
-
 
 ####################################################################################
 #                                                                                  #
