@@ -48,21 +48,23 @@ def reset(request):
 
 
 def login_view(request):
+    """This method serves the login interface"""
     # serve the login page
     return render(request, "login.html")
 
 
 def verify(request):
+    """This method is called to verify a users credentials"""
     # ask for authentication
     username = request.POST.get("username", "")
     password = request.POST.get("password", "")
     user = authenticate(username=username, password=password)
     if user is not None:
-        # if auth. true, then redirect to menu
+        # if auth. successful, redirect to menu
         login(request, user)
         return HttpResponseRedirect("menu")
     else:
-        # if auth. false, then return to login with error message
+        # if auth. failed, return to login with error message
         return render(request, "login.html", {'Error': True})
 
 
@@ -72,6 +74,7 @@ def verify(request):
 
 @login_required
 def logout_view(request):
+    """This method serves the login page after loggin out"""
     # return to login page but with a logout message
     logout(request)
     return render(request, "login.html", {'Logout': True})
@@ -79,20 +82,15 @@ def logout_view(request):
 
 @login_required
 def menu(request):
+    """This method serves the menu interface"""
     # serve the menu page
     return render(request, "menu.html")
 
 
 @login_required
-@permission_required('restaurant.isBoss')
-def bookkeeping(request):
-    # serve the bookkeeping page
-    return render(request, "bookkeeping.html")
-
-
-@login_required
 @permission_required('restaurant.isCook')
 def cook(request):
+    """This method serves the cooks interface"""
     # get all orders that are not done
     orders = Order.objects.filter(done=0)
     # render the orders to the cooks page
@@ -100,17 +98,26 @@ def cook(request):
 
 
 def confirmorder(request):
+    """This method is called when a cook marks an order as done"""
+    # get the food from the request or emptystring
     name = request.GET.get("food", "")
-    food = Food.objects.filter(name=name)[:1][0]
-    order = Order.objects.filter(food=food, done=0)[:1][0]
-    order.done = 1
-    order.save()
+    # get the an order containing that food from the DB
+    orders = Order.objects.filter(food__name=name, done=0)
+    # if at least one was found
+    if orders:
+        # get the first order in the set
+        order = orders[0]
+        # mark it done
+        order.done = 1
+        # and store the change in the DB
+        order.save()
     return HttpResponse("Done!")
 
 
 @login_required
 @permission_required('restaurant.isWaiter')
 def waiter(request):
+    """This method serves the waiter interface"""
     # get all foods from database
     foods = Food.objects.all().order_by('name')
     context = {'foods': foods}
@@ -119,26 +126,35 @@ def waiter(request):
 
 
 def cleanitems(request):
+    """This method is called to check if the waiter page should be refreshed"""
     # check if there is a swiped card in queue
     swipes = CardSwipe.objects.filter(device="waiter")
     if swipes:
-        # remove the last cardswipe and tell the waiter-frontend to refresh
+        # get the first swipe
         swipe = swipes[0]
         try:
+            # try to get an account that belongs to that card
             Account.objects.filter(card=swipe.card)[0]
         except:
+            # if it fails delete the swipe, since it has been processed
             swipe.delete()
+            # and show an error page
             return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "Card rejected!"}),
                                 content_type="text/json")
+        # if account was found, delete the swipe since it was processed
         swipe.delete()
+        # and reload the page to clean the ordered items
         return HttpResponse(json.dumps({'doreload': True, 'error': False}), content_type="text/json")
     else:
+        # if no swipe was returned, then just return the default JSON-object
         return HttpResponse(json.dumps({'doreload': False, 'error': False}), content_type="text/json")
 
 
 def error(request):
+    """This method serves an all-purpose error page"""
+    # get the error message from the request
     message = request.GET.get("message", "")
-
+    # and render it to the client
     return render(request, "error.html", {'message': message, 'returnpage': "waiter"})
 
 
@@ -169,6 +185,7 @@ def rmorder(request):
 @login_required
 @permission_required('restaurant.isCashier')
 def cashier(request):
+    """This method serves the cashier interface"""
     # get all recent card-swipes
     swipes = (CardSwipe.objects.filter(device="cashier"))
     # if there are any card-swipes
@@ -202,6 +219,7 @@ def cashier(request):
 
 
 def checkout(request):
+    """This function is called when the checkout-button in the cashier interface is pressed"""
     try:
         # this is called, when the pay-button is pressed
         print("Doing the checkout for cardswipe: " + request.GET.get("swipeid", "0"))
@@ -227,7 +245,9 @@ def checkout(request):
 
 
 def getbill(request):
+    """This function is called by the cashier to check if new data is available"""
     swipes = CardSwipe.objects.filter(device='cashier')
+    #
     if swipes:
         return HttpResponse(json.dumps({'isdata': True}), content_type="text/json")
     else:
@@ -236,8 +256,7 @@ def getbill(request):
 
 @csrf_exempt
 def cardswiped(request):
-    # if you want to introduce new cards to the system, you can change this to True
-    # it should be False for normal operation
+    """This function is called when a card is swiped at either arduino"""
     # get the data from the client and parse the json-data
     data = json.loads(request.body.decode('utf-8'))
 
@@ -300,21 +319,28 @@ def cardswiped(request):
     return HttpResponse("OK")
 
 
+@login_required
+@permission_required('restaurant.isBoss')
 def bookkeeping(request):
+    """This method serves the bookkeeping interface"""
+    # get all orders that are paid
     orders = Order.objects.filter(account__paid=1)
     totalprice = 0
     if orders:
+        # add up their total cost
         for order in orders:
             totalprice += order.food.price
         foodlist = []
+        # create a list of all foods and theri quantities
         for food in Food.objects.all():
             torders = Order.objects.filter(food=food)
             if torders:
                 foodlist.append({'date': "Today", 'food': food.name, 'quantity': len(torders)})
-
+        # render the foodlist to the interface
         return render(request, "bookkeeping.html", {'payments': [
             {'date': "Today", 'cash': "€" + str(totalprice), 'pin': "€0,00", 'credit': "€0,00", 'check': "€0,00"}],
             'sales': foodlist})
+    # if there are no orders, there is nothing to render
     return render(request, "bookkeeping.html", {})
 
 
@@ -345,11 +371,7 @@ def setvalue(key, value):
     variable.save()
     return None
 
-####################################################################################
-#                                                                                  #
-#  Everything below is belongs to the encryption and is still under construction.  #
-#                                                                                  #
-####################################################################################
+# All functions below are used by for decryption
 
 
 def rotl(x):
@@ -361,6 +383,7 @@ def rotr(x):
 
 
 def treyferdec(text):
+    """This method decrypts the data from the arduino"""
     sbox = [0x02, 0x03, 0x05, 0x07, 0x0B, 0x0D, 0x11, 0x13,
             0x17, 0x1D, 0x1F, 0x25, 0x29, 0x2B, 0x2F, 0x35,
             0x3B, 0x3D, 0x43, 0x47, 0x49, 0x4F, 0x53, 0x59,
