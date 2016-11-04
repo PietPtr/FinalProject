@@ -28,5 +28,6 @@ urlpatterns = [
 
     url(r'^reset$', views.reset, name='reset'),
     url(r'^error$', views.error, name='error'),
+    url(r'^bookkeeping$', views.bookkeeping, name='bookkeeping'),
 
 ]
