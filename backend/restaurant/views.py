@@ -124,15 +124,11 @@ def cleanitems(request):
         # remove the last cardswipe and tell the waiter-frontend to refresh
         swipe = swipes[0]
         try:
-            accounts = Account.objects.filter(card=swipe.card)
-            orders = Order.objects.filter(account=accounts[0])
-            if not orders:
-                swipe.delete()
-                return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "No orders!"}), content_type="text/json")
+            Account.objects.filter(card=swipe.card)[0]
         except:
             swipe.delete()
             return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "Card rejected!"}), content_type="text/json")
-
+        swipe.delete()
         return HttpResponse(json.dumps({'doreload': True, 'error': False}), content_type="text/json")
     else:
         return HttpResponse(json.dumps({'doreload': False, 'error': False}), content_type="text/json")
