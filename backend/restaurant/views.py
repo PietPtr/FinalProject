@@ -92,7 +92,7 @@ def bookkeeping(request):
 @login_required
 @permission_required('restaurant.isCook')
 def cook(request):
-    orders = Order.objects.filter(done=0)
+    orders = Order.objects.filter(done=0,)
     foods = []
     for order in orders:
         foods.append(order.food)
@@ -218,7 +218,6 @@ def checkout(request):
         # go through all orders
         for order in orders:
             # and mark them done
-            order.done = 1
             order.save()
         # finally delete the swipe-object, so the job is done
         swipe.delete()
