@@ -5,11 +5,16 @@ import sys
 
 http = urllib3.PoolManager()
 
+# This giant try except is used for loading the config file, and generating one
+# if it doesn't exist. It also tries to provide solutions to the user for common
+# errors.
 try:
     file = open('relay.conf', 'r')
     server_address = file.readline().split('=')[1].replace('\n', '')
     terminal_type  = file.readline().split('=')[1].replace('\n', '')
 except IndexError:
+    # The file is not formatted correctly, so it's probably empty. By deleting
+    # the file the next time the script is run a config file will be generated.
     print("An error occured while reading the config file.\n"
           "Please try deleting 'relay.conf' and try again.\n"
           "\n\n\nERROR CODE 003")
@@ -69,6 +74,8 @@ port = input("What port are you on? If you don't know, just press enter and "
 
 ser = serial.Serial()
 
+# If the user didn't enter a port the script will look if /dev/ttyACM0 through
+# /dev/ttyACM9 are valid ports.
 if (port == ""):
     for i in range(10):
         try:
@@ -115,6 +122,7 @@ def sendData(data):
 def sendDataOverSerial(data):
     ser.write((data + "\n").encode())
 
+# Infinite loop to read the serial data and send it to the backend.
 while True:
     data = str(ser.readline())
 
