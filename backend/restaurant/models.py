@@ -79,6 +79,7 @@ class VariablesAdmin(admin.ModelAdmin):
 
 
 class Permission(models.Model):
+    # Creates certain permissions to be linked to user accounts
     class Meta:
         permissions = (
             ("isCook", "Can see the cooks page"),

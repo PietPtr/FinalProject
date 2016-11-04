@@ -1,3 +1,5 @@
+{# The html page for the menu. It contains four redirects to the pages waiter, cashier, cook and bookkeeping. #}
+
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
@@ -16,6 +18,7 @@
     <div class="login">
         <h2>I am a...</h2>
         <div class="loginwrapper">
+            <!-- Menu options for users with permission -->
             {% if perms.restaurant.isWaiter %}
                 <div class="item" onclick="redirect('waiter')" style="cursor: pointer;">
                     <p>Waiter</p>
@@ -33,7 +36,7 @@
             {% endif %}
             {% if perms.restaurant.isBoss %}
                 <div class="item" onclick="redirect('bookkeeping')" style="cursor: pointer;">
-                    <p>Bookkeeper (only available in beta version)</p>
+                    <p>Bookkeeper</p>
                 </div>
             {% endif %}
         </div>
@@ -42,6 +45,7 @@
     </div>
 </div>
 <script>
+    // function to redirect to the selected site while clicking the button
     function redirect(site) {
         window.location = site;
     }

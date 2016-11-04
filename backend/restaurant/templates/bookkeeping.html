@@ -1,3 +1,6 @@
+{# Creates an html page for the bookkeeping with two tables, consisting of the products and their quantity (in orders)
+and a table with the income consisting of the sum of all the prices from orders that HAVE BEEN PAID. #}
+
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
@@ -14,6 +17,7 @@
         <h1>Cafe-bar Celona</h1>
         <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer" />
     </div>
+    <!-- Create tables for the bookkeeping -->
     <div class="foodandq">
         <h2>Income</h2>
         <table>
@@ -64,7 +68,7 @@
     function redirect(site) {
         window.location = site;
     }
-
+    // reload the page for new info
     window.setTimeout(function () {
         location.reload();
     }, 10 * 1000);

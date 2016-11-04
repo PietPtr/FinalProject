@@ -58,22 +58,31 @@ def reset(request):
 
 
 def login_view(request):
+    # send request to login page
     return render(request, "login.html")
 
 
 def verify(request):
+    # ask for authentication
     username = request.POST.get("username", "")
     password = request.POST.get("password", "")
     user = authenticate(username=username, password=password)
     if user is not None:
+        # if auth. true, then redirect to menu
         login(request, user)
         return HttpResponseRedirect("menu")
     else:
+        # if auth. false, then return to login with error message
         return render(request, "login.html", {'Error': True})
+
+
+# @login_required defines if you need permission to enter the .html page
+# @permission_required defines which specific permission you need to enter a certain .html page
 
 
 @login_required
 def logout_view(request):
+    # return to login page but with a logout message
     logout(request)
     return render(request, "login.html", {'Logout': True})
 
@@ -302,7 +311,7 @@ def cardswiped(request):
 
 
 def bookkeeping(request):
-    orders = Order.objects.all()
+    orders = Order.objects.filter(account__paid=1)
     totalprice = 0
     if orders:
         for order in orders:
