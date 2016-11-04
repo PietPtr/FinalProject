@@ -23,7 +23,7 @@ class Account(models.Model):
 
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('card', 'active', 'paid',)
+    list_display = ('id', 'card', 'active', 'paid',)
 
 
 class Food(models.Model):

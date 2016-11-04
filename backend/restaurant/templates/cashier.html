@@ -10,7 +10,7 @@
 <div class="container">
     <div class="header">
         <h1>Cafe-bar Celona</h1>
-        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;" />
+        <input type="button" value="Return" onclick="redirect('menu')" style="cursor: pointer;"/>
     </div>
     <div class="billheader">
         <h2>Checkout-bill</h2>
@@ -30,6 +30,8 @@
                         <td>€{{ item.food.price }}</td>
                     </tr>
                 {% endfor %}
+            {% else %}
+                <h2>No orders made.</h2>
             {% endif %}
         </table>
     </div>
@@ -49,7 +51,8 @@
         <h4>Check</h4>
     </div>
 </div>
-{% if not items %}
+
+{% if doreload %}
     <script>
         function checkRefresh() {
             var xmlhttp = new XMLHttpRequest();

@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 import json
 import random
 
-from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from restaurant.models import Order, CardSwipe, Account, Food, Card, Variables
@@ -54,8 +53,6 @@ def reset(request):
             variable.delete()
         for order in Order.objects.all():
             order.delete()
-        for card in Card.objects.all():
-            card.delete()
         # send a confirmation message if everything worked out
         return HttpResponse("Deleted!")
 
@@ -121,10 +118,25 @@ def cleanitems(request):
     if swipes:
         # remove the last cardswipe and tell the waiter-frontend to refresh
         swipe = swipes[0]
-        swipe.delete()
-        return HttpResponse(json.dumps({'doreload': True}), content_type="text/json")
+        try:
+            accounts = Account.objects.filter(card=swipe.card)
+            orders = Order.objects.filter(account=accounts[0])
+            if not orders:
+                swipe.delete()
+                return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "No orders!"}), content_type="text/json")
+        except:
+            swipe.delete()
+            return HttpResponse(json.dumps({'doreload': True, 'error': True, 'message': "Card rejected!"}), content_type="text/json")
+
+        return HttpResponse(json.dumps({'doreload': True, 'error': False}), content_type="text/json")
     else:
-        return HttpResponse(json.dumps({'doreload': False}), content_type="text/json")
+        return HttpResponse(json.dumps({'doreload': False, 'error': False}), content_type="text/json")
+
+
+def error(request):
+    message = request.GET.get("message", "")
+
+    return render(request, "error.html", {'message': message, 'returnpage': "waiter"})
 
 
 def addorder(request):
@@ -155,7 +167,7 @@ def rmorder(request):
 @permission_required('restaurant.isCashier')
 def cashier(request):
     # get all recent card-swipes
-    swipes = (CardSwipe.objects.filter(device="cashier")[:1])
+    swipes = (CardSwipe.objects.filter(device="cashier"))
     # if there are any card-swipes
     if swipes:
         # get the first one
@@ -163,14 +175,19 @@ def cashier(request):
         # get the first (and probably only) swipe
         accounts = Account.objects.filter(card=swiped.card, active=1)
         if not accounts:
-            return render(request, "error.html", {'message': "This card does not belong to an account!"})
+            swiped.delete()
+            return render(request, "error.html", {'message': "This card does not belong to an account!", 'returnpage': "cashier"})
         # get the account that belongs to that swipe
         items = Order.objects.filter(account=accounts[0])
         # get all items that account has bought
         price = 0
-        for item in items:
-            # add up the price
-            price += item.food.price
+
+        if items:
+            for item in items:
+                # add up the price
+                price += item.food.price
+        else:
+            items = []
         # pack it into the context
         context = {'id': swiped.identifier, 'items': items, 'price': price, 'doreload': False}
     else:
@@ -181,26 +198,29 @@ def cashier(request):
 
 
 def checkout(request):
-    # this is called, when the pay-button is pressed
-    print("Doing the checkout for cardswipe: " + request.GET.get("swipeid", "0"))
-    # get the swipe-object belonging to that swipeid
-    swipe = CardSwipe.objects.filter(identifier=request.GET.get("swipeid", "0"))[:1][0]
-    # get the account which the order belongs to
-    account = Account.objects.filter(card=swipe.card, active=1)[:1][0]
-    # get the orders that account has made
-    orders = Order.objects.filter(account=account, done=0)
-    # set the new parameters and save it
-    account.paid = 1
-    account.active = 0
-    account.save()
-    # go through all orders
-    for order in orders:
-        # and mark them done
-        order.done = 1
-        order.save()
-    # finally delete the swipe-object, so the job is done
-    swipe.delete()
-    return HttpResponseRedirect("cashier", False)
+    try:
+        # this is called, when the pay-button is pressed
+        print("Doing the checkout for cardswipe: " + request.GET.get("swipeid", "0"))
+        # get the swipe-object belonging to that swipeid
+        swipe = CardSwipe.objects.filter(identifier=request.GET.get("swipeid", "0"))[:1][0]
+        # get the account which the order belongs to
+        account = Account.objects.filter(card=swipe.card, active=1)[:1][0]
+        # get the orders that account has made
+        orders = Order.objects.filter(account=account, done=0)
+        # set the new parameters and save it
+        account.paid = 1
+        account.active = 0
+        account.save()
+        # go through all orders
+        for order in orders:
+            # and mark them done
+            order.done = 1
+            order.save()
+        # finally delete the swipe-object, so the job is done
+        swipe.delete()
+        return HttpResponseRedirect("cashier", False)
+    except:
+        return HttpResponseRedirect("cashier", False)
 
 
 def getbill(request):
@@ -220,9 +240,8 @@ def cardswiped(request):
 
     # if the data-object has been correctly parsed
     if data:
-        # TODO reimplement decryption
-        # cardid = treyferdec(data["id"])
-        cardid = data["id"]
+        cardid = treyferdec(data["id"])
+        # cardid = data["id"]
         cardtype = data["type"]
         # print the information for debug-purposes
         print("Card swiped:")
@@ -248,8 +267,12 @@ def cardswiped(request):
             accounts = Account.objects.filter(card=cards[0], active=1)
             # if the source of the packet is a waiter, then
             if cardtype == "waiter":
-                # we know that the accounts-list contains exactly one item
-                account = accounts[0]
+                try:
+                    # we know that the accounts-list contains exactly one item
+                    account = accounts[0]
+                except:
+                    swipe.save()
+                    return HttpResponse("Ok!")
                 # we also want to know what orders have no account assigned to it
                 orders = Order.objects.filter(account=None)
                 # assign the account to the new orders

@@ -15,6 +15,16 @@
     </div>
     <div class="login">
         <h3>{{ message }}</h3>
+        {% if returnpage %}
+            <input type="button" value="Return" onclick="redirect('{{ returnpage }}')">
+        {% endif %}
     </div>
 </div>
 </body>
+
+<script>
+    function redirect(site) {
+        window.location = site;
+    }
+</script>
+</html>

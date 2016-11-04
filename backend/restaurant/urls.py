@@ -27,5 +27,6 @@ urlpatterns = [
     url(r'^confirmorder$', views.confirmorder, name='confirmorder'),
 
     url(r'^reset$', views.reset, name='reset'),
+    url(r'^error$', views.error, name='error'),
 
 ]
