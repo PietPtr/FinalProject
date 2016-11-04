@@ -69,7 +69,7 @@ def verify(request):
 
 
 # @login_required defines if you need permission to enter the .html page
-# @permission_required defines which specific permission you need to enter a certain .html page
+# @permission_required defines which specific permission you need to view the content that the method below produces
 
 
 @login_required
@@ -331,7 +331,7 @@ def bookkeeping(request):
         for order in orders:
             totalprice += order.food.price
         foodlist = []
-        # create a list of all foods and theri quantities
+        # create a list of all foods and their quantities
         for food in Food.objects.all():
             torders = Order.objects.filter(food=food)
             if torders:
@@ -371,7 +371,7 @@ def setvalue(key, value):
     variable.save()
     return None
 
-# All functions below are used by for decryption
+# All functions below are used for decryption
 
 
 def rotl(x):
