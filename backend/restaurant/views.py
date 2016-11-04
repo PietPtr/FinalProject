@@ -92,7 +92,7 @@ def bookkeeping(request):
 @login_required
 @permission_required('restaurant.isCook')
 def cook(request):
-    orders = Order.objects.filter(done=0)
+    orders = Order.objects.filter(done=0,)
     foods = []
     for order in orders:
         foods.append(order.food)
@@ -104,7 +104,8 @@ def confirmorder(request):
     name = request.GET.get("food", "")
     food = Food.objects.filter(name=name)[:1][0]
     order = Order.objects.filter(food=food, done=0)[:1][0]
-    order.delete()
+    order.done = 1
+    order.save()
     return HttpResponse("Done!")
 
 
@@ -218,7 +219,6 @@ def checkout(request):
         # go through all orders
         for order in orders:
             # and mark them done
-            order.done = 1
             order.save()
         # finally delete the swipe-object, so the job is done
         swipe.delete()
@@ -316,6 +316,7 @@ def bookkeeping(request):
         return render(request, "bookkeeping.html", {'payments': [
             {'date': "Today", 'cash': "€" + str(totalprice), 'pin': "€0,00", 'credit': "€0,00", 'check': "€0,00"}],
             'sales': foodlist})
+    return render(request, "bookkeeping.html", {})
 
 
 def getvalue(key):
